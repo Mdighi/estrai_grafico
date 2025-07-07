@@ -1,63 +1,63 @@
 import streamlit as st
 import cv2
-
 import pytesseract
 import numpy as np
-from mpl_toolkits.mplot3d import Axes3D  # serve per projection='3d'
-from matplotlib import pyplot as plt
 import pandas as pd
-from scipy.spatial.distance import cdist # Ancora utile per calcolare distanze
-from sklearn.cluster import KMeans
-from scipy.interpolate import UnivariateSpline
-from sklearn.linear_model import LinearRegression
-from scipy.optimize import curve_fit, minimize # Import minimize
-from sklearn.neural_network import MLPRegressor
-from skimage.measure import find_contours
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.svm import SVR
-from scipy.stats import zscore
-import io, zipfile
-import matplotlib.pyplot as plt
-import os
-from scipy.stats import f_oneway
-import openpyxl
-import sympy # Import sympy for symbolic manipulation
-import warnings
-from sklearn.cluster import DBSCAN
-from scipy.ndimage import binary_dilation # Per la dilatazione morfologica
-from scipy.signal import medfilt # Per il filtro mediano (ottimo per il rumore)
-from streamlit_drawable_canvas import st_canvas
-from PIL import Image # <--- NUOVA IMPORTAZIONE
-import streamlit as st
-from sklearn.model_selection import train_test_split
-from sklearn.neural_network import MLPClassifier # Esempio di classificatore supervisionato
-from sklearn.svm import SVC # Altro esempio
-from sklearn.metrics import accuracy_score, classification_report
-import streamlit as st
-from matplotlib.colors import ListedColormap # Per i colori delle regioni di decisione
-import io
-import zipfile # Per creare l'archivio ZIP
-from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
 import json
-import joblib # Per salvare e caricare il modello
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
-import pickle
-import seaborn as sns 
-from sklearn.decomposition import PCA
-from scipy.spatial.distance import euclidean, cosine, cityblock
-from io import BytesIO
+import os
+import io
+import zipfile
 import tempfile
-import matplotlib.pyplot as plt
+import warnings
+import pickle
+import joblib
+import openpyxl
+import sympy
+
+from PIL import Image
+from streamlit_drawable_canvas import st_canvas
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.colors import ListedColormap
+
+from sklearn.cluster import KMeans, DBSCAN
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.ensemble import (
+    RandomForestRegressor,
+    GradientBoostingRegressor,
+    RandomForestClassifier
+)
+from sklearn.neural_network import MLPRegressor, MLPClassifier
+from sklearn.svm import SVR, SVC
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.decomposition import PCA
 from sklearn.metrics import (
     accuracy_score,
-    classification_report,
-    confusion_matrix
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix,
+    classification_report
 )
-from sklearn.calibration import calibration_curve  # import corretto
+from sklearn.calibration import calibration_curve
+
+from scipy.spatial.distance import (
+    cdist,
+    euclidean,
+    cosine,
+    cityblock
+)
+from scipy.interpolate import UnivariateSpline
+from scipy.optimize import curve_fit, minimize
+from scipy.stats import zscore, f_oneway
+from scipy.ndimage import binary_dilation
+from scipy.signal import medfilt
+
+from skimage.measure import find_contours
+from io import BytesIO
+
 
 st.set_page_config(layout="wide")
 # Ora definisci le tue tab come faresti normalmente
