@@ -58,7 +58,7 @@ from scipy.signal import medfilt
 from skimage.measure import find_contours
 from io import BytesIO
 def run():
-    st.set_page_config(layout="wide", page_title="Hi Man")  # ✅ must be the first Streamlit command
+   # st.set_page_config(layout="wide", page_title="Hi Man")  # ✅ must be the first Streamlit command
 
 
 
