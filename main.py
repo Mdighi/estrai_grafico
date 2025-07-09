@@ -1,8 +1,8 @@
 import streamlit as st
+st.set_page_config(page_title="Seleziona Lingua / Select Language")  # deve essere prima di tutto
+
 import estrai_grafico
 import plot_extraction
-
-st.set_page_config(page_title="Seleziona Lingua / Select Language")
 
 st.markdown(
     "<div style='text-align: center;'>"
