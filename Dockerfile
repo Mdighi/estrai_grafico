@@ -13,11 +13,14 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 5. Copia il tuo script e, se lo usi, eventuali cartelle col codice
+# 5. Copia il tuo script
 COPY estrai_grafico.py .
 
 # 6. Espone la porta su cui gira Streamlit
 EXPOSE 8501
 
-# 7. Comando di avvio
-CMD ["streamlit", "run", "estrai_grafico.py", "--server.port", "8501", "--server.headless", "true"]
+# 7. Comando di avvio: bind su 0.0.0.0
+CMD ["streamlit", "run", "estrai_grafico.py", \
+     "--server.port", "8501", \
+     "--server.address", "0.0.0.0", \
+     "--server.headless", "true"]
