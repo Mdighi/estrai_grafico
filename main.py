@@ -1,5 +1,5 @@
 import streamlit as st
-st.set_page_config(page_title="Seleziona Lingua / Select Language")  # deve essere prima di tutto
+st.set_page_config(layout="wide",page_title="Seleziona Lingua / Select Language")  # deve essere prima di tutto
 
 import estrai_grafico
 import plot_extraction
