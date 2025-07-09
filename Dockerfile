@@ -1,26 +1,27 @@
-# 1. Usa un’immagine base Python + Debian
+# 1. Base Python slim
 FROM python:3.11-slim
 
-# 2. Installa Tesseract di sistema
+# 2. Tesseract di sistema
 RUN apt-get update && \
     apt-get install -y tesseract-ocr && \
     rm -rf /var/lib/apt/lists/*
 
-# 3. Imposta la working directory
+# 3. Working dir
 WORKDIR /app
 
-# 4. Copia requirements e installa le dipendenze Python
+# 4. Dipendenze Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 5. Copia il tuo script
+# 5. Copia codice
 COPY estrai_grafico.py .
 
-# 6. Espone la porta su cui gira Streamlit
-EXPOSE 8501
+# 6. Esponi porta definita da Railway
+EXPOSE  $PORT
 
-# 7. Comando di avvio: bind su 0.0.0.0
-CMD ["streamlit", "run", "estrai_grafico.py", \
-     "--server.port", "8501", \
-     "--server.address", "0.0.0.0", \
-     "--server.headless", "true"]
+# 7. Usa la variabile $PORT e bind su tutte le interfacce
+ENV PORT 8501
+CMD sh -c "streamlit run estrai_grafico.py \
+    --server.port \$PORT \
+    --server.address 0.0.0.0 \
+    --server.headless true"
