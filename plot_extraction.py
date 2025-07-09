@@ -57,21 +57,21 @@ from scipy.signal import medfilt
 
 from skimage.measure import find_contours
 from io import BytesIO
-
 def estraigrafico():
     st.set_page_config(layout="wide")
-    # Ora definisci le tue tab come faresti normalmente
-    # Definisci le etichette con HTML e CSS in-line
+
+
+
 
     st.title("WORKSPACE")
 
     tab_labels = [
-        "<span style='font-size: 40px; color: #6BE88D;'>**Modulo A**: Genera Dati</span>",
-        "<span style='font-size: 40px; color: #EB7323;'>**Modulo B**: Addestramento modello</span>",
-        "<span style='font-size: 40px; color: #4B4BFF;'>**Modulo C**: Classificazione</span>"
+        "<span style='font-size: 40px; color: #6BE88D;'>**Module A**: Data Generation</span>",
+        "<span style='font-size: 40px; color: #EB7323;'>**Module B**: Train Model</span>",
+        "<span style='font-size: 40px; color: #4B4BFF;'>**Module C**: Classification</span>"
     ]
 
-    tab1, tab2, tab3 = st.tabs(["Modulo A", "Modulo B", "Modulo C"])
+    tab1, tab2, tab3 = st.tabs(["Module A", "Module B", "Module C"])
     # --- Inizializzazione completa per i parametri della Sidebar ---
     # I valori qui sono i default che verranno usati al primo avvio o dopo un reset.
 
@@ -104,8 +104,8 @@ def estraigrafico():
 
     # Metodi Matematici
     if "Combine_Methods_Bt" not in st.session_state: st.session_state.Combine_Methods_Bt = False
-    if "fit_method_Reg" not in st.session_state: st.session_state.fit_method_Reg = "Nessuno_Reg"
-    if "fit_method_Clust" not in st.session_state: st.session_state.fit_method_Clust = "Nessuno_Clust"
+    if "fit_method_Reg" not in st.session_state: st.session_state.fit_method_Reg = "No_Reg"
+    if "fit_method_Clust" not in st.session_state: st.session_state.fit_method_Clust = "No_Clust"
     if "N_color_clusters" not in st.session_state: st.session_state.N_color_clusters = 3
     if "dbscan_min_samples" not in st.session_state: st.session_state.dbscan_min_samples = 15
     if "dbscan_eps" not in st.session_state: st.session_state.dbscan_eps = 20
@@ -196,11 +196,11 @@ def estraigrafico():
             "Param_Fit_Method_Reg": "fit_method_Reg",
             "Param_Fit_Method_Clust": "fit_method_Clust",
         }
-        reg_options = ["Nessuno_Reg","Lineare","Polinomiale grado 2","Media Mobile",
-                    "Spline","Esponenziale","Fourier","Rete Neurale",
+        reg_options = ["No_Reg","Linear","Polinomial grade 2","Movie means",
+                    "Spline","Exponential","Fourier","Neural Network",
                     "Gradient Boosting","Support Vector Regression",
                     "Symbolic Regression","Random Forest Regression"]
-        clust_options = ["Nessuno_Clust","Chiudi Contorno","Cluster Colore","Percorsi Aperti Ramificati"]
+        clust_options = ["No_Clust","Closed path","Cluster Color","Open Path"]
 
         for csv_key, val in row.items():
             if pd.isna(val): continue
@@ -247,7 +247,7 @@ def estraigrafico():
 
     with st.sidebar:        
         st.title("SIDEBAR")
-        st.markdown("<h2 style='color: #6BE88D;'>Modulo A</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='color: #6BE88D;'>Module A</h2>", unsafe_allow_html=True)
                         # --- SEZIONE PER CARICARE I PARAMETRI ---
             # — Se ci sono parametri in pending, applicali e rerun —
         if st.session_state.get("pending_params_file_bytes"):
@@ -256,126 +256,228 @@ def estraigrafico():
             st.rerun()
 
         with st.expander("⚙️Editing Immagine"):
-            st.subheader("Filtro Dati", help="Se vuoi dare una pulita iniziale all'immagine")
-            st.checkbox("Abilita Filtro Dati", key="enable_data_filter")
-            st.checkbox("Inverti soglia (THRESH_BINARY_INV)", key="invert_threshold")
+            st.subheader("Data Filter", help="If you want to give the image an initial clean up.")
+            st.checkbox("Enable Data Filter", key="enable_data_filter")
+            st.checkbox("Invert threshold (THRESH_BINARY_INV)", key="invert_threshold")
 
             if st.session_state.enable_data_filter:
-                st.slider("Dimensione Finestra Filtro (punti)", min_value=3, max_value=51, step=2, key="filter_window_size", help="Determina il livello di smoothing e la sensibilità agli outlier. Deve essere un numero dispari.")
-                st.slider("Moltiplicatore IQR per Outlier", min_value=1.0, max_value=5.0, step=0.1, key="iqr_multiplier", help="Valori più bassi rimuovono più outlier, valori più alti ne rimuovono meno.")
-                
-            st.subheader("Soglia curva da considerare, parametro importante")
-            st.slider("Threshold valore", 0, 400, key="threshold_val")
-                
-            st.subheader("Regolazione Contrasto e Luminosità")
-            st.slider("Contrasto (Alpha)", min_value=0.0, max_value=2.0, step=0.01, key="alpha_contrast", help="Controlla l'intensità del contrasto dell'immagine. Valori >1 aumentano, <1 diminuiscono.")
-            st.slider("Luminosità (Beta)", min_value=0.0, max_value=10.0, step=0.05, key="beta_brightness", help="Controlla la luminosità dell'immagine. Valori positivi aumentano, negativi diminuiscono.")
-            
-            st.slider("Tolleranza dx linee verticali", 0, 50, key="tol_dx")
-            st.slider("Tolleranza dy linee orizzontali", 1, 50, key="tol_dy")
+                st.slider("Filter Window Size (points)", min_value=3, max_value=51, step=2, key="filter_window_size", help="Determines the smoothing level and sensitivity to outliers. Must be an odd number.")
+                st.slider("Moltiplicatore IQR per Outlier", min_value=1.0, max_value=5.0, step=0.1, key="iqr_multiplier", help="Lower values remove more outliers, higher values remove fewer..")
+            st.subheader("Curve threshold to consider, important parameter")
+            st.slider("Threshold value", 0, 400, key="threshold_val")
+
+            st.subheader("Contrast and Brightness Adjustment")
+            st.slider(
+                "Contrast (Alpha)",
+                min_value=0.0,
+                max_value=2.0,
+                step=0.01,
+                key="alpha_contrast",
+                help="Controls the intensity of image contrast. Values >1 increase, <1 decrease."
+            )
+            st.slider(
+                "Brightness (Beta)",
+                min_value=0.0,
+                max_value=10.0,
+                step=0.05,
+                key="beta_brightness",
+                help="Controls the image brightness. Positive values increase, negative decrease."
+            )
+
+            st.slider("Tolerance dx vertical lines", 0, 50, key="tol_dx")
+            st.slider("Tolerance dy horizontal lines", 1, 50, key="tol_dy")
             st.slider("Canny lower threshold", 1, 300, key="canny_low")
             st.slider("Canny upper threshold", 1, 500, key="canny_high")
             st.slider("HoughLinesP threshold", 1, 300, key="hough_thresh")
             st.slider("HoughLinesP minLineLength", 1, 500, key="hough_min_length")
             st.slider("HoughLinesP maxLineGap", 1, 300, key="hough_max_gap")
 
-                # Nota: La logica del Canvas è per l'interazione momentanea e non viene salvata/caricata.
-                # Quindi non usiamo 'key' per questi widget.
-            checkbox_canvas = st.checkbox("Esegui Editing Manuale", value=False)
-            st.info("Nel caso non bastasse l'editing dei parametri allora puoi usare una penna e una gomma per modificare l'immagine in scala di grigi, poi visualizza le modifiche in nelle canvas *🟢Immagine per il fit* e *Fitting* nel WORKSPACE")
+            # Note: The Canvas logic is for temporary interaction and is not saved/loaded.
+            # Therefore we don't use 'key' for these widgets.
+            checkbox_canvas = st.checkbox("Enable Manual Editing", value=False)
+            st.info(
+                "If parameter editing is not enough, you can use a pen and eraser to edit the grayscale image, then view the changes in the *🟢Image for fit* and *Fitting* canvases in the WORKSPACE."
+            )
             if checkbox_canvas:
-                st.subheader("🖌️Canvas", help="Vai nella canvas di Editing Manuale e con il mouse modifica l'immagine, poi fai l'upload")
-                editing_mode = st.sidebar.radio("Modalità Editing Manuale:", ("Nessuno_Pen", "Penna (Nera)", "Penna (Bianca)"), key="editing_mode_radio")
-                stroke_width_value = st.sidebar.slider("Spessore Pennello", 1, 20, 5)
+                st.subheader(
+                    "🖌️ Canvas",
+                    help="Go to the Manual Editing canvas and use the mouse to modify the image, then upload it."
+                )
+                editing_mode = st.sidebar.radio(
+                    "Manual Editing Mode:",
+                    ("None_Pen", "Pen (Black)", "Pen (White)"),
+                    key="editing_mode_radio"
+                )
+                stroke_width_value = st.sidebar.slider("Brush Thickness", 1, 20, 5)
 
         st.markdown("---")
 
-        with st.expander("⚙️ Editing Assi"):
-            st.checkbox("Centra automaticamente il grafico", key="center_plot")
-            st.subheader("Scala")
-            st.number_input("Pixel asse X (origine)", key="x0_pix")
-            st.number_input("Pixel asse X (secondo punto)", key="x1_pix")
-            st.number_input("Valore reale X a x0", key="x0_val")
-            st.number_input("Valore reale X a x1", key="x1_val")
-            st.number_input("Pixel asse Y (origine)", key="y0_pix")
-            st.number_input("Pixel asse Y (secondo punto)", key="y1_pix")
-            st.number_input("Valore reale Y a y0", key="y0_val")
-            st.number_input("Valore reale Y a y1", key="y1_val")
-                
+        with st.expander("⚙️ Axis Editing"):
+            st.checkbox("Automatically center the plot", key="center_plot")
+            st.subheader("Scale")
+            st.number_input("X-axis pixel (origin)", key="x0_pix")
+            st.number_input("X-axis pixel (second point)", key="x1_pix")
+            st.number_input("Real X value at x0", key="x0_val")
+            st.number_input("Real X value at x1", key="x1_val")
+            st.number_input("Y-axis pixel (origin)", key="y0_pix")
+            st.number_input("Y-axis pixel (second point)", key="y1_pix")
+            st.number_input("Real Y value at y0", key="y0_val")
+            st.number_input("Real Y value at y1", key="y1_val")
+
         st.markdown("---")
 
-        with st.expander("⚙️Metodi Matematici"):
-            available_methods = ["Nessuno_Reg","Lineare","Polinomiale grado 2","Media Mobile","Spline","Esponenziale","Fourier","Rete Neurale","Gradient Boosting", "Support Vector Regression","Symbolic Regression","Random Forest Regression","Nessuno_Clust","Chiudi Contorno","Cluster Colore", "Percorsi Aperti Ramificati"]
-                
-            st.checkbox("Vuoi combinare più metodi di regressione?", key="Combine_Methods_Bt", help="Combina più tipologie di fitting")
-                
-                # Questa logica interna è dinamica e non necessita di 'key' per il salvataggio/caricamento
+        with st.expander("⚙️ Mathematical Methods"):
+            available_methods = [
+                "No_Reg", "Linear", "Polynomial degree 2", "Moving means", "Spline",
+                "Exponential", "Fourier", "Neural Network", "Gradient Boosting",
+                "Support Vector Regression", "Symbolic Regression",
+                "Random Forest Regression", "No_Clust", "Closed path",
+                "Cluster Color", "Open Path"
+            ]
+
+            st.checkbox(
+                "Combine multiple regression methods?",
+                key="Combine_Methods_Bt",
+                help="Combine different fitting types."
+            )
+
+            # This internal logic is dynamic and does not require 'key' for saving/loading
             if st.session_state.Combine_Methods_Bt:
                 selected_methods = st.multiselect(
-                    "Seleziona metodi di fitting da combinare",
+                    "Select fitting methods to combine",
                     options=available_methods,
                     default=["Fourier"]
                 )
                 list_of_methods_config = []
                 for method in selected_methods:
                     method_config = {"name": method}
-                    if method == "Rete Neurale":
-                        hidden_layers = st.text_input(f"Hidden layers per '{method}' (es: 10,10)", "10,10")
-                        activation = st.selectbox(f"Attivazione per '{method}'", ["relu", "tanh", "logistic"], index=0)
-                        max_iter = st.number_input(f"Max iterazioni per '{method}'", 100, 5000, step=100, value=1000)
+                    if method == "Neural Network":
+                        hidden_layers = st.text_input(
+                            f"Hidden layers for '{method}' (e.g.: 10,10)",
+                            "10,10"
+                        )
+                        activation = st.selectbox(
+                            f"Activation for '{method}'",
+                            ["relu", "tanh", "logistic"],
+                            index=0
+                        )
+                        max_iter = st.number_input(
+                            f"Max iterations for '{method}'",
+                            100, 5000, step=100, value=1000
+                        )
                         method_config["params"] = {
                             "hidden_layers": [int(x.strip()) for x in hidden_layers.split(",")],
                             "activation": activation,
                             "max_iter": max_iter
                         }
                     list_of_methods_config.append(method_config)
-                st.sidebar.write("Metodi selezionati:", list_of_methods_config)
+                st.sidebar.write("Selected methods:", list_of_methods_config)
 
-            st.subheader("Scegli il Metodo di Fitting", help="Se vuoi fare regressione sceglie i metodi **-REG** del primo menu, così puoi fare regressioni anche combinando i diversi metodi e tracciare poi delle previsioni aumentando con lo slider la lunghezza delle x. se vuoi fare Clustering allore scegli i secondI metod (CLUST), chiudi i contorni, applica percorsi aperti o clusterizza sui colori, ricorda di usare i parametri di editing immagine se non riesci ad ottenere una buona immagine.")
-                
-            st.selectbox("fit_method_Reg",
-                ["Nessuno_Reg", "Lineare", "Polinomiale grado 2", "Media Mobile", "Spline", "Esponenziale", "Fourier", "Rete Neurale", "Gradient Boosting", "Support Vector Regression", "Symbolic Regression", "Random Forest Regression"],
-                key="fit_method_Reg")
-                
-            st.selectbox("fit_method_Clust",
-                ["Nessuno_Clust", "Chiudi Contorno", "Cluster Colore", "Percorsi Aperti Ramificati"],
-                key="fit_method_Clust")
+            st.subheader(
+                "Choose Fitting Method",
+                help=(
+                    "For regression, pick methods ending in -REG from the first menu; "
+                    "you can combine methods and then use the slider to extend the X-axis for predictions. "
+                    "For clustering, choose methods under CLUST, close paths, apply open paths, or cluster by color. "
+                    "Use image editing parameters if the curve extraction isn't clear."
+                )
+            )
 
-                
-                
-            
-                
-            if st.session_state.fit_method_Clust in ["Cluster Colore", "Chiudi Contorno", "Percorsi Aperti Ramificati"]:
-                st.header("⚙️ Editing Parametri Cluster", help="se cambi da cluster colore a chiudi contorno prova a invertire la soglia di threshold")
-                st.slider("Numero di cluster di colore (K-Means)", min_value=2, max_value=50, step=1, key="N_color_clusters", help="Definisce quanti gruppi di colori distinti cercare nelle curve.")
+            st.selectbox(
+                "fit_method_Reg",
+                [
+                    "No_Reg", "Linear", "Polynomial degree 2", "Moving means", "Spline",
+                    "Exponential", "Fourier", "Neural Network", "Gradient Boosting",
+                    "Support Vector Regression", "Symbolic Regression",
+                    "Random Forest Regression"
+                ],
+                key="fit_method_Reg"
+            )
+
+            st.selectbox(
+                "fit_method_Clust",
+                ["No_Clust", "Closed path", "Cluster Color", "Open Path"],
+                key="fit_method_Clust"
+            )
+
+            if st.session_state.fit_method_Clust in ["Cluster Color", "Closed path", "Open Path"]:
+                st.header(
+                    "⚙️ Cluster Parameter Editing",
+                    help="If switching between Cluster Color and Closed path, try inverting the threshold value."
+                )
+                st.slider(
+                    "Number of color clusters (K-Means)",
+                    min_value=2, max_value=50, step=1,
+                    key="N_color_clusters",
+                    help="Defines how many distinct color groups to find along the curves."
+                )
                 st.subheader("DBSCAN")
                 st.slider("DBSCAN min_samples", min_value=1, max_value=100, step=1, key="dbscan_min_samples")
                 st.slider("DBSCAN eps", min_value=1, max_value=100, step=1, key="dbscan_eps")
-                st.subheader("Percorsi Aperti")
-                st.slider("Prossimità dei pixel nel contorn aperto", 0, 50, key="pixel_proximity_threshold")
-                st.subheader("Percorsi Chiusi")
-                st.slider("Raggio Offset Perimetro Percorso Chiuso", min_value=1, max_value=20, key="perimeter_offset_radius", help="Controlla quanto il perimetro si discosta dalla forma clusterizzata e la sua 'tondeggiatura'.")
-                st.slider("Smoothing Perimetro Percorso Chiuso (Sigma)", min_value=0.1, max_value=5.0, step=0.1, key="perimeter_smoothing_sigma", help="Controlla la morbidezza del perimetro.")
-                st.selectbox("Tipo di Fitting Percorso Aperto", ["Spline", "Random Forest"], key="path_fit_type", help="Scegli l'algoritmo per tracciare il percorso dopo DBSCAN.")
-                
-            if st.session_state.fit_method_Reg == "Media Mobile":
-                st.subheader("Parametri Media Mobile")
-                st.slider("Dimensione Finestra Media Mobile", 1, 50, key="window_size", help="Numero di punti per calcolare la media.")
-                
-            if st.session_state.fit_method_Reg == "Rete Neurale":
-                st.subheader("Parametri Rete Neurale")
-                st.text_input("Numero neuroni per hidden layer (separati da virgola)", key="hidden_layers")
-                st.selectbox("Funzione di attivazione", ['identity', 'logistic', 'tanh', 'relu'], index=2, key="activation")
-                st.number_input("Max iterazioni", min_value=100, max_value=100000, step=100, key="max_iter")
+                st.subheader("Open Paths")
+                st.slider("Pixel proximity threshold for open contour", 0, 50, key="pixel_proximity_threshold")
+                st.subheader("Closed Paths")
+                st.slider(
+                    "Offset radius for closed path perimeter",
+                    min_value=1, max_value=20, key="perimeter_offset_radius",
+                    help="Controls how much the perimeter deviates and its roundness."
+                )
+                st.slider(
+                    "Smoothing sigma for closed path perimeter",
+                    min_value=0.1, max_value=5.0, step=0.1,
+                    key="perimeter_smoothing_sigma",
+                    help="Controls the smoothness of the perimeter."
+                )
+                st.selectbox(
+                    "Open Path Fitting Type",
+                    ["Spline", "Random Forest"],
+                    key="path_fit_type",
+                    help="Choose the algorithm to trace the path after DBSCAN."
+                )
 
-            st.header("Previsioni")
-            st.slider("Lunghezza previsione (estensione asse X)", 1.0, 300.0, step=0.1, key="forecast_length")
-                
-            st.header("Approssimazione Fourier (per curve non esplicite)")
-            st.checkbox("Approssima con Fourier (se fit non esplicito)", key="approx_fourier")
+            if st.session_state.fit_method_Reg == "Moving means":
+                st.subheader("Moving Means Parameters")
+                st.slider(
+                    "Window size for moving means",
+                    1, 50, key="window_size",
+                    help="Number of points to average."
+                )
+
+            if st.session_state.fit_method_Reg == "Neural Network":
+                st.subheader("Neural Network Parameters")
+                st.text_input(
+                    "Neurons per hidden layer (comma-separated)",
+                    key="hidden_layers"
+                )
+                st.selectbox(
+                    "Activation function",
+                    ['identity', 'logistic', 'tanh', 'relu'],
+                    index=2,
+                    key="activation"
+                )
+                st.number_input(
+                    "Max iterations",
+                    min_value=100, max_value=100000,
+                    step=100,
+                    key="max_iter"
+                )
+
+            st.header("Forecasting")
+            st.slider(
+                "Forecast length (X-axis extension)",
+                1.0, 300.0, step=0.1, key="forecast_length"
+            )
+
+            st.header("Fourier Approximation (for implicit curves)")
+            st.checkbox(
+                "Approximate with Fourier (if fit is implicit)",
+                key="approx_fourier"
+            )
             if st.session_state.approx_fourier:
-                st.slider("Armoniche Fourier per approssimazione", 1, 25, key="fourier_approx_harmonics")
-                
+                st.slider(
+                    "Fourier harmonics for approximation",
+                    1, 25, key="fourier_approx_harmonics"
+                )
 
             sidebar_keys = [
             'enable_data_filter',
@@ -406,13 +508,15 @@ def estraigrafico():
     with tab1:
         st.markdown(tab_labels[0], unsafe_allow_html=True)
         with st.expander("ℹ️Info"):
-            st.info("Modulo A:" \
-            "\n\n Carica un'immagine per iniziare l'analisi di regressione o clustering su di essa:" \
-            "\n - Fai **- Editing dell'immagine**, definisci bene quello che cerchi eliminando ciò che non ti serve pulendo con i comandi di Editing nella *SIDEBAR* "\
-            "\n - Fai **-regressione o clustering** con diversi metodi, dal più semplice al più complesso, **- puoi combinare più metodi di fitting** con i residui per ottenere risultati ottimali. " \
-            "\n - Per ogni curva fittata **- si estrae l'equazione o l'approssimata di Fourier**," \
-            "\n - Raccogli i risultati **-scaricando il dataframe con i parametri utilizzati, le caratteristiche dei cluster e delle loro regressioni**")
-        
+            st.info(
+                "Module A:" \
+                "\n\n Upload an image to begin regression or clustering analysis on it:" \
+                "\n - Use **Image Editing** to precisely define what you need by removing unneeded parts with the Editing commands in the *SIDEBAR*" \
+                "\n - Perform **regression or clustering** with various methods, from the simplest to the most advanced; **you can combine multiple fitting methods** using residuals to achieve optimal results." \
+                "\n - For each fitted curve, **extract the equation or the Fourier approximation**," \
+                "\n - Gather the results by **downloading the dataframe with the parameters used, cluster characteristics, and their regressions**"
+            )
+
     
         def create_default_image():
             # Crea una canvas bianca 300x300
@@ -424,31 +528,30 @@ def estraigrafico():
             img_bytes = buffer.tobytes()
             return img, img_bytes
 
-        with st.expander("📁 Selezione file input"):
+        with st.expander("📁 Select input file"):
             uploaded_file = st.file_uploader(
-                "Seleziona il file dell'immagine da analizzare (png, jpg, jpeg)",
+                "Select the image file to analyze (png, jpg, jpeg)",
                 type=["png", "jpg", "jpeg"]
             )
 
         if uploaded_file is not None:
-            uploaded_file.seek(0)  # Torna all'inizio del file
+            uploaded_file.seek(0)  # Return to the beginning of the file
             file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
             img_bgr = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
             image_name = uploaded_file.name
             if img_bgr is None:
-                st.error("Errore nel decodificare l'immagine caricata. Prova con un altro file.")
+                st.error("Error decoding the uploaded image. Please try another file.")
         else:
-        
-
-            # Crea immagine di default
+            # Create default image
             img_bgr, img_bytes = create_default_image()
-            uploaded_file = BytesIO(img_bytes)  # finto file
+            uploaded_file = BytesIO(img_bytes)  # fake file
             uploaded_file.name = "default.jpg"
             image_name = uploaded_file.name
-            st.info("Nessuna immagine caricata: uso immagine di default.")
+            st.info("No image uploaded: using default image.")
 
-        # Ora puoi usare img_bgr e image_name per il resto del processamento...
-        st.image(cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB), caption=f"Immagine: {image_name}")
+        # Now you can use img_bgr and image_name for the rest of the processing...
+        st.image(cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB), caption=f"Image: {image_name}")
+
 
 
 
@@ -568,10 +671,10 @@ def estraigrafico():
             x_real = x0_val_in + (x_pix - x0_pix_in) * scale_x
             y_real = y0_val_in + (y_pix - y0_pix_in) * scale_y
 
-            # --- INIZIO: Applicazione del Filtro Dati ---
+            # --- INIZIO: Applicazione del Data Filter ---
             if enable_data_filter and filter_window_size > 1:
                 if len(y_real) < filter_window_size:
-                    st.warning(f"Numero di punti insufficiente ({len(y_real)}) per la finestra ({filter_window_size}). Filtro disabilitato.")
+                    st.warning(f"Insufficient number of points ({len(y_real)}) for window ({filter_window_size}). Filter disabled.")
                 else:
                     # 1. Smoothing con filtro mediano
                     y_smoothed = medfilt(y_real, kernel_size=filter_window_size)
@@ -588,9 +691,9 @@ def estraigrafico():
                     y_real = y_real[non_outlier_indices]
 
                     if len(x_real) == 0:
-                        st.warning("Tutti i punti sono stati rimossi dal filtro. Prova a ridurre il moltiplicatore IQR o disabilitare il filtro.")
+                        st.warning("All points have been removed by the filter. Try reducing the IQR multiplier or disabling the filter.")
                         return None, None, None
-            # --- FINE: Applicazione del Filtro Dati ---
+            # --- FINE: Applicazione del Data Filter ---
 
             df = pd.DataFrame({'X': x_real, 'Y': y_real})    
             return x_pix, y_pix, df
@@ -668,32 +771,33 @@ def estraigrafico():
                 approx_type (str, optional): Type of approximation if applicable (e.g., "Fourier Approximation"). Defaults to None.
             """
             if approx_type:
-                st.subheader(f"📝 {approx_type} della curva fittata")
+                st.subheader(f"📝 {approx_type} of the fitted curve")
             else:
-                st.subheader("📝 Equazione della curva fittata")
-                
+                st.subheader("📝 Equation of the fitted curve")
+
             x_sym = sympy.symbols('x')
 
-            if method == "Lineare":
+            if method == "Linear":
                 if params is not None and len(params) == 2:
                     m, c = params
                     st.latex(f"y = {m:.4f}{x_sym} + {c:.4f}")
                 else:
-                    st.info("Equazione lineare: $y = mx + c$ (coefficienti non disponibili)")
+                    st.info("Linear Equation: $y = mx + c$ (coefficients not available)")
 
-            elif method == "Polinomiale grado 2":
+            elif method == "Polinomial grade 2":
                 if params is not None and len(params) == 3:
                     a, b, c = params
                     st.latex(f"y = {a:.4f}{x_sym}^2 + {b:.4f}{x_sym} + {c:.4f}")
                 else:
-                    st.info("Equazione polinomiale grado 2: $y = ax^2 + bx + c$ (coefficienti non disponibili)")
+                    st.info("Polinomial grade 2 Equation: $y = ax^2 + bx + c$ (coefficients not available)")
 
-            elif method == "Esponenziale":
+            elif method == "Exponential":
                 if params is not None and len(params) == 3:
                     a, b, c = params
                     st.latex(f"y = {a:.4f}e^{{{b:.4f}{x_sym}}} + {c:.4f}")
                 else:
-                    st.info("Equazione esponenziale: $y = ae^{bx} + c$ (coefficienti non disponibili)")
+                    st.info("Exponential Equation: $y = ae^{bx} + c$ (coefficients not available)")
+
 
             elif method == "Fourier":
                 if params is not None and len(params) > 1:
@@ -714,30 +818,43 @@ def estraigrafico():
                         # For simplicity, if params only contains coefficients, assume it's for x in [0, 2pi].
                         # A more robust solution would pass L as well.
                         # For now, let's just indicate a generic x without scaling if L isn't explicitly passed here for the original Fourier fit.
-                        st.warning("L'equazione di Fourier per il fitting diretto richiede informazioni aggiuntive sul periodo per essere visualizzata correttamente qui.")
+                        st.warning("The Fourier equation for direct fitting requires additional information about the period to be displayed correctly here.")
                         st.latex("y = A_0/2 + \\sum (A_n\\cos(nx) + B_n\\sin(nx))")
                 else:
-                    st.info("Equazione di Fourier: $y = a_0/2 + \\sum_{n=1}^{N} (a_n\\cos(nx) + b_n\\sin(nx))$ (coefficienti non disponibili)")
+                    st.info("Fourier equation: $y = a_0/2 + \\sum_{n=1}^{N} (a_n\\cos(nx) + b_n\\sin(nx))$ (coefficienti non disponibili)")
 
             elif method == "Symbolic Regression":
                 if params is not None and hasattr(params, 'sympy_formula'):
                     st.latex(f"y = {sympy.latex(params.sympy_formula())}")
                 else:
-                    st.info("L'equazione di regressione simbolica verrà visualizzata direttamente nell'output del fitting (se PySR è attivo e trova una formula).")
+                    st.info(
+                        "The symbolic regression equation will be displayed directly in the fitting output "
+                        "(if PySR is enabled and finds a formula)."
+                    )
 
-            elif method in ["Spline", "Rete Neurale", "Random Forest Regression", "Gradient Boosting", "Support Vector Regression", "Chiudi Contorno"]:
-                if not approx_type: # Only show this message if it's the main fit, not an approximation
-                    st.info(f"Il metodo '{method}' non produce un'equazione esplicita facile da visualizzare. È un modello basato su algoritmi complessi.")
+            elif method in [
+                "Spline", "Neural Network", "Random Forest Regression",
+                "Gradient Boosting", "Support Vector Regression", "Closed path"
+            ]:
+                if not approx_type:  # Only show this message if it's the main fit, not an approximation
+                    st.info(
+                        f"The method '{method}' does not produce an explicit equation that can be easily displayed. "
+                        "It's a model based on complex algorithms."
+                    )
             else:
-                st.info("Nessuno metodo di fitting selezionato o nessuna equazione disponibile per il metodo scelto.")
+                st.info(
+                    "No fitting method selected or no equation available for the chosen method."
+                )
 
         # --- New Fourier Approximation Function ---
         def fourier_series_with_period(x_vals, L, *a_coeffs):
             """Fourier series function where L is the period and the first coefficient is a0/2."""
             ret = a_coeffs[0] / 2
             for n in range(1, (len(a_coeffs) - 1) // 2 + 1):
-                ret += a_coeffs[2*n-1] * np.cos(n * 2 * np.pi * x_vals / L) + \
-                    a_coeffs[2*n] * np.sin(n * 2 * np.pi * x_vals / L)
+                ret += (
+                    a_coeffs[2 * n - 1] * np.cos(n * 2 * np.pi * x_vals / L)
+                    + a_coeffs[2 * n] * np.sin(n * 2 * np.pi * x_vals / L)
+                )
             return ret
 
         def approximate_curve_with_fourier(x_data, y_data, n_harmonics=5):
@@ -746,8 +863,11 @@ def estraigrafico():
             optimizing for coefficients and period (L).
             Returns x_fit, y_approx_fourier, and the optimized parameters including L.
             """
-            if len(x_data) < 2 * n_harmonics + 1 + 1: # need at least this many points for N harmonics + L
-                st.warning(f"Troppo pochi punti per approssimare con {n_harmonics} armoniche di Fourier. Servono almeno {2 * n_harmonics + 2} punti.")
+            if len(x_data) < 2 * n_harmonics + 2:  # need at least this many points for N harmonics + L
+                st.warning(
+                    f"Too few points to approximate with {n_harmonics} Fourier harmonics. "
+                    f"At least {2 * n_harmonics + 2} points are required."
+                )
                 return None, None, None
 
             # Initial guess for L (period) can be the range of the data
@@ -780,11 +900,12 @@ def estraigrafico():
                 st.session_state.y_approx_fourier = y_approx_fourier
                 return x_approx_fourier, y_approx_fourier, popt # Return all optimized params
             except RuntimeError as e:
-                st.warning(f"Impossibile trovare l'approssimazione Fourier (ottimizzazione fallita): {e}. Prova a ridurre il numero di armoniche o scegliere un altro metodo.")
+                st.warning(f"Unable to find Fourier approximation (optimization failed): {e}. Try reducing the number of harmonics or choosing another method.")
                 return None, None, None
             except Exception as e:
-                st.warning(f"Errore durante l'approssimazione Fourier: {e}")
+                st.warning(f"Error during Fourier approximation: {e}")
                 return None, None, None
+
         
         def fit_curve(df, method, forecast_length, hidden_layers_val, activation_val, max_iter_val, mask_curve_only=None, original_image_rgb=None):
             """
@@ -814,18 +935,18 @@ def estraigrafico():
                 y_fit = spline(x_extended)
                 return x_extended, y_fit, params
 
-            elif method == "Polinomiale grado 2":
+            elif method == "Polinomial grade 2":
                 p = np.polyfit(x_unique, y_unique, 2)
                 y_fit = np.polyval(p, x_extended)
                 params = p
                 return x_extended, y_fit, params
 
-            elif method == "Lineare":
+            elif method == "Linear":
                 p = np.polyfit(x_unique, y_unique, 1)
                 y_fit = np.polyval(p, x_extended)
                 params = p
                 return x_extended, y_fit, params
-            elif method == "Media Mobile":
+            elif method == "Movie means":
                 # Assicurati che 'window_size' sia accessibile qui.
                 # Se 'window_size' viene passato direttamente alla funzione che chiama fit_curve,
                 # allora dovrebbe essere disponibile in questo scope.
@@ -840,17 +961,17 @@ def estraigrafico():
 
                 # Validazione della finestra, se non già fatta nello slider
                 if not isinstance(st.session_state.window_size, (int, float)) or st.session_state.window_size < 1:
-                    st.error("Errore: Dimensione finestra media mobile non valida. Assicurati di impostare lo slider.")
+                    st.error("Error: Invalid moving means window size. Please make sure the slider is set.")
                     params = np.array([]) # Nessun parametro valido
                     return x_extended, y_fit, params # Ritorna dati originali in caso di errore
 
-                # Calcola la media mobile sui dati y_unique per il fit
+                # Calcola la Movie means sui dati y_unique per il fit
                 # Si assume che x_unique e y_unique siano le coppie di punti uniche per il fitting
                 fitted_series = pd.Series(y_unique).rolling(window=int(st.session_state.window_size), min_periods=1, center=False).mean()
-                fitted_curve_y = fitted_series.values # La curva fittata è la serie della media mobile sui punti unici
+                fitted_curve_y = fitted_series.values # La curva fittata è la serie della Movie means sui punti unici
 
                 # La curva estesa (e per la previsione)
-                # Per la media mobile, l'estensione è spesso la media dell'ultimo blocco,
+                # Per la Movie means, l'estensione è spesso la media dell'ultimo blocco,
                 # o un'estrapolazione semplice. Qui useremo l'ultimo valore valido calcolato.
                 if len(fitted_curve_y) > 0:
                     last_ma_value = fitted_curve_y[-1]
@@ -858,21 +979,21 @@ def estraigrafico():
                     last_ma_value = np.mean(y_unique) if len(y_unique) > 0 else 0
 
                 # Crea la y_fit per l'estensione completa (inclusa la previsione)
-                # Per la media mobile, il fit sull'estensione è solitamente l'ultimo valore MA
+                # Per la Movie means, il fit sull'estensione è solitamente l'ultimo valore MA
                 y_fit = np.full(x_extended.shape, last_ma_value)
-                # Sostituisci i valori già calcolati con la media mobile effettiva
+                # Sostituisci i valori già calcolati con la Movie means effettiva
                 if len(x_unique) > 0:
                     for i, x_val in enumerate(x_unique):
                         idx_extended = np.where(x_extended == x_val)[0]
                         if len(idx_extended) > 0:
                             y_fit[idx_extended[0]] = fitted_curve_y[i]
 
-                # Per i parametri della media mobile, possiamo restituire la dimensione della finestra
+                # Per i parametri della Movie means, possiamo restituire la dimensione della finestra
                 # in un array NumPy per coerenza.
                 params = np.array([float(st.session_state.window_size)]) # Contiene la dimensione della finestra
                 return x_extended, y_fit, params
 
-            elif method == "Esponenziale":
+            elif method == "Exponential":
                 def exp_func(x, a, b, c):
                     return a * np.exp(b * x) + c
                 try:
@@ -893,14 +1014,14 @@ def estraigrafico():
                     params = popt
                     return x_extended, y_fit, params
                 except Exception as e:
-                    st.warning(f"Fit esponenziale fallito: {e}. Prova un altro metodo o verifica i tuoi dati.")
+                    st.warning(f" Exponential fit failed: {e}. Try another method or check your data.")
                     return x_unique, y_unique, None
 
             elif method == "Fourier":
                 N = 5
                 L = x_unique.max() - x_unique.min()
                 if L == 0:
-                    st.warning("Range X per Fourier è zero. Impossibile fittare.")
+                    st.warning("X range for Fourier is zero. Cannot fit.")
                     return x_unique, y_unique, None
 
                 x_scaled = 2 * np.pi * (x_unique - x_unique.min()) / L
@@ -919,10 +1040,10 @@ def estraigrafico():
                     params = popt # Here, params are just coefficients, not including L explicitly for the formula
                     return x_extended, y_fit, params
                 except Exception as e:
-                    st.warning(f"Fit Fourier fallito: {e}. Prova un altro metodo o verifica i tuoi dati.")
+                    st.warning(f"Fourier Fit failed: {e}. Try another method or check your data.")
                     return x_unique, y_unique, None
 
-            elif method == "Rete Neurale":
+            elif method == "Neural Network":
                 try:
                     hidden_layer_sizes_tuple = tuple(int(n.strip()) for n in hidden_layers_val.split(",") if n.strip())
                     if len(hidden_layer_sizes_tuple) == 0:
@@ -941,48 +1062,49 @@ def estraigrafico():
                     y_fit = mlp.predict(x_extended_reshaped)
                     return x_extended_reshaped.flatten(), y_fit, None
                 except Exception as e:
-                    st.warning(f"Fit rete neurale fallito: {e}")
+                    st.warning(f"Neural Network fit failed: {e}")
                     return x_unique, y_unique, None
 
-            elif method == "Chiudi Contorno":
+            elif method == "Closed path":
                 if mask_curve_only is None or mask_curve_only.size == 0:
-                    st.warning("Immagine curva binarizzata mancante o vuota per Chiudi Contorno.")
+                    st.warning("Binarized curve image missing or empty for Closed path.")
                     return np.array([]), np.array([]), None
 
                 if np.count_nonzero(mask_curve_only) == 0:
-                    st.warning("Nessun pixel bianco rilevato. L'immagine non contiene contorni visibili.")
+                    st.warning("No white pixels detected. The image contains no visible contours.")
                     return np.array([]), np.array([]), None
 
-                # Trova tutti i contorni
+                # Find all contours
                 contours, _ = cv2.findContours(mask_curve_only, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
                 if not contours:
-                    st.warning("Nessun contorno rilevato.")
+                    st.warning("No contour detected.")
                     return np.array([]), np.array([]), None
 
-                # Uniamo tutti i punti dei contorni in un unico array per il clustering
+                # Combine all contour points into a single array for clustering
                 all_contour_points = []
                 for contour in contours:
-                    # Assicurati che il contorno abbia almeno un punto
+                    # Ensure the contour has at least one point
                     if contour.shape[0] >= 1:
-                        # Squeeze l'array, poi converti in lista.
-                        # Se squeeze riduce a 1D (un solo punto), assicurati che sia una lista di lista.
+                        # Squeeze the array, then convert to list.
+                        # If squeeze reduces to 1D (a single point), ensure it's a list of lists.
                         squeezed_points = contour.squeeze()
-                        if squeezed_points.ndim == 1: # Questo gestisce il caso di un singolo punto [x, y]
+                        if squeezed_points.ndim == 1:  # Single point [x, y]
                             all_contour_points.append(squeezed_points.tolist())
-                        else: # Questo gestisce il caso di più punti [[x1,y1], [x2,y2], ...]
+                        else:  # Multiple points [[x1,y1], [x2,y2], ...]
                             all_contour_points.extend(squeezed_points.tolist())
 
                 if not all_contour_points:
-                    st.warning("Nessun punto valido trovato nei contorni per il clustering.")
+                    st.warning("No valid points found in contours for clustering.")
                     return np.array([]), np.array([]), None
 
-                # Ora points_for_clustering sarà un array 2D coerente (N, 2)
+                # Now points_for_clustering will be a consistent 2D array (N, 2)
                 points_for_clustering = np.array(all_contour_points)
 
                 if len(points_for_clustering) < 2:
-                    st.warning("Punti insufficienti per eseguire il clustering DBSCAN.")
+                    st.warning("Insufficient points to perform DBSCAN clustering.")
                     return np.array([]), np.array([]), None
+
 
                 # Esegui DBSCAN sui punti dei contorni
                 db = DBSCAN(eps=st.session_state.dbscan_eps, min_samples=st.session_state.dbscan_min_samples).fit(points_for_clustering)
@@ -1044,35 +1166,49 @@ def estraigrafico():
                         y_cluster_unique = df_cluster_unique_x['Y'].values
 
                         if len(x_cluster_unique) < 2:
-                            st.warning(f"Cluster {k}: Punti insufficienti per il fitting dopo la pulizia dei duplicati.")
-                            continue                   
+                            st.warning(f"Cluster {k}: insufficient points for fitting after duplicate removal.")
+                            continue
                         else:
-                            try:                        
+                            try:
                                 s_val = 0.5 * np.var(y_cluster_unique) * len(y_cluster_unique)
-                                if s_val == 0: s_val = 1e-6 # Evita divisione per zero se tutti i Y sono uguali
+                                if s_val == 0:
+                                    s_val = 1e-6  # Avoid division by zero if all Y are equal
                                 spline = UnivariateSpline(x_cluster_unique, y_cluster_unique, s=s_val)
-                                x_fit_cluster = np.linspace(x_cluster_unique.min(), x_cluster_unique.max() + forecast_length, 200)
+                                x_fit_cluster = np.linspace(
+                                    x_cluster_unique.min(),
+                                    x_cluster_unique.max() + forecast_length,
+                                    200
+                                )
                                 y_fit_cluster = spline(x_fit_cluster)
 
                                 all_fitted_x_clusters.append(x_fit_cluster)
                                 all_fitted_y_clusters.append(y_fit_cluster)
-                                cluster_info_list.append({"label": f"Cluster {k}", "color": col, "equation": "Spline (non esplicita)"})
+                                cluster_info_list.append({
+                                    "label": f"Cluster {k}",
+                                    "color": col,
+                                    "equation": "Spline (non-explicit)"
+                                })
 
                             except Exception as e:
-                                st.warning(f"Fitting Spline fallito per Cluster {k}: {e}")
+                                st.warning(f"Spline fitting failed for Cluster {k}: {e}")
                                 continue
 
-                # Visualizza l'immagine con i cluster colorati
-                st.image(clustered_image, caption="Contorni Clusterizzati", channels="BGR", use_container_width=True)
+                # Display the image with colored clusters
+                st.image(
+                    clustered_image,
+                    caption="Clustered Contours",
+                    channels="BGR",
+                    use_container_width=True
+                )
 
-                # Visualizza le informazioni sui cluster
-                st.subheader("📊 Dettagli dei Cluster")
+                # Display cluster details
+                st.subheader("📊 Cluster Details")
                 if cluster_info_list:
                     for info in cluster_info_list:
-                        st.write(f"- **{info['label']}** (colore: RGB{tuple(int(c*255) for c in info['color'][:3])})")
-                        st.write(f"  Equazione: {info['equation']}")
+                        st.write(f"- **{info['label']}** (color: RGB{tuple(int(c*255) for c in info['color'][:3])})")
+                        st.write(f"  Equation: {info['equation']}")
 
-                    # Salva i metadata per uso futuro (es. DataFrame di export)
+                    # Save metadata for future use (e.g., exporting a DataFrame)
                     st.session_state.cluster_metadata = [
                         {
                             "label": info["label"],
@@ -1081,77 +1217,85 @@ def estraigrafico():
                         }
                         for info in cluster_info_list
                     ]
-                    # Compatibilità con downstream
+                    # Compatibility for downstream use
                     st.session_state.colore_cluster = [
                         meta["color_rgb"] for meta in st.session_state.cluster_metadata
                     ]
                 else:
-                    st.info("Nessun cluster significativo rilevato per il fitting.")
+                    st.info("No significant clusters detected for fitting.")
 
-
-                # Ritorna tutti i dati fittati dai cluster
+                # Return all fitted cluster data
                 return all_fitted_x_clusters, all_fitted_y_clusters, None
 
-            elif method == "Cluster Colore":
+            elif method == "Cluster Color":
                 if mask_curve_only.shape != original_image_rgb.shape[:2]:
-                    mask_curve_only = cv2.resize(mask_curve_only, (original_image_rgb.shape[1], original_image_rgb.shape[0]))
-                # Controlli iniziali sulla maschera
+                    mask_curve_only = cv2.resize(
+                        mask_curve_only,
+                        (original_image_rgb.shape[1], original_image_rgb.shape[0])
+                    )
+                # Initial mask checks
                 if mask_curve_only is None or mask_curve_only.size == 0:
-                    st.warning("Immagine curva binarizzata mancante o vuota per Cluster Colore.")
+                    st.warning("Binarized curve image missing or empty for Cluster Color.")
                     return np.array([]), np.array([]), None
 
                 if np.count_nonzero(mask_curve_only) == 0:
-                    st.warning("Nessun pixel bianco rilevato. L'immagine non contiene contorni visibili per il clustering colore.")
+                    st.warning("No white pixels detected. The image contains no visible contours for color clustering.")
                     return np.array([]), np.array([]), None
 
-                # Controlla che l'immagine originale a colori sia disponibile
+                # Ensure original color image is available
                 if original_image_rgb is None:
-                    st.error("L'immagine originale a colori (original_image_rgb) non è disponibile. Carica un'immagine.")
+                    st.error("Original color image (original_image_rgb) is not available. Please upload an image.")
                     return np.array([]), np.array([]), None
-                
-                # Trova tutti i pixel della curva (bianchi nella maschera binarizzata)
+
+                # Find all curve pixels (white in the binary mask)
                 pixel_coords_raw = cv2.findNonZero(mask_curve_only)
                 if pixel_coords_raw is None or len(pixel_coords_raw) == 0:
-                    st.warning("Nessun pixel della curva rilevato. Controlla la soglia di binarizzazione.")
+                    st.warning("No curve pixels detected. Check the binarization threshold.")
                     return [], [], None
 
-                # Appiattisci le coordinate dei pixel
-                # all_curve_pixels avrà forma (N, 2) dove N è il numero di pixel della curva
-                all_curve_pixels = pixel_coords_raw[:, 0, :] 
+                # Flatten pixel coordinates (shape (N, 2))
+                all_curve_pixels = pixel_coords_raw[:, 0, :]
 
                 if len(all_curve_pixels) < 2:
-                    st.warning("Punti insufficienti per eseguire il clustering basato sul colore.")
+                    st.warning("Insufficient points to perform color-based clustering.")
                     return np.array([]), np.array([]), None
 
-                # Filtra i pixel che sono all'interno dei bordi dell'immagine originale
-                # Questo è importante per evitare errori di indice se la maschera è leggermente più grande
-                valid_indices = (all_curve_pixels[:, 1] >= 0) & (all_curve_pixels[:, 1] < original_image_rgb.shape[0]) & \
-                                (all_curve_pixels[:, 0] >= 0) & (all_curve_pixels[:, 0] < original_image_rgb.shape[1])
-                
+                # Filter pixels that lie within the original image borders
+                valid_indices = (
+                    (all_curve_pixels[:, 1] >= 0) &
+                    (all_curve_pixels[:, 1] < original_image_rgb.shape[0]) &
+                    (all_curve_pixels[:, 0] >= 0) &
+                    (all_curve_pixels[:, 0] < original_image_rgb.shape[1])
+                )
                 if np.sum(valid_indices) == 0:
-                    st.warning("Nessun pixel valido trovato all'interno dei limiti dell'immagine originale per il clustering colore.")
+                    st.warning("No valid pixels found within the original image boundaries for color clustering.")
                     return np.array([]), np.array([]), None
-                
+
                 all_curve_pixels_valid = all_curve_pixels[valid_indices]
-                # Estrai i valori RGB per ogni pixel della curva dall'immagine originale
-                pixel_colors = original_image_rgb[all_curve_pixels_valid[:, 1], all_curve_pixels_valid[:, 0]]
-                
-                # Parametro Streamlit per il numero di cluster di colore
+                # Extract RGB values for each curve pixel
+                pixel_colors = original_image_rgb[
+                    all_curve_pixels_valid[:, 1],
+                    all_curve_pixels_valid[:, 0]
+                ]
+
+                # Number of color clusters from Streamlit state
                 n_color_clusters = st.session_state.N_color_clusters
-                
-                
+
                 if len(pixel_colors) < n_color_clusters:
-                    st.warning(f"Troppi pochi pixel della curva ({len(pixel_colors)}) per creare {n_color_clusters} cluster di colore. Ridurre il numero di cluster o verificare la binarizzazione.")
+                    st.warning(
+                        f"Too few curve pixels ({len(pixel_colors)}) to create "
+                        f"{n_color_clusters} color clusters. Reduce the number of clusters or check the binarization."
+                    )
                     return np.array([]), np.array([]), None
-                
-                # Esegui K-Means sui colori
-                kmeans = KMeans(n_clusters=n_color_clusters, random_state=0, n_init=10) # n_init=10 per compatibilità e robustezza
+
+                # Perform K-Means on the colors
+                kmeans = KMeans(n_clusters=n_color_clusters, random_state=0, n_init=10)
                 labels = kmeans.fit_predict(pixel_colors)
-                
-                # Mappa le etichette K-Means ai colori centroidi
+
+                # Map K-Means labels to RGB centroids
                 cluster_centers_rgb = kmeans.cluster_centers_.astype(int)
                 st.session_state.colore_cluster = cluster_centers_rgb
-                # Prepara l'immagine per la visualizzazione dei cluster colorati
+                # Prepare image for colored-cluster visualization
                 clustered_image = cv2.cvtColor(st.session_state.mask_curve_only * 255, cv2.COLOR_GRAY2BGR)
 
                 all_fitted_x_clusters = []
@@ -1159,73 +1303,81 @@ def estraigrafico():
                 cluster_info_list = []
 
                 unique_labels = np.unique(labels)
-                
                 for k in unique_labels:
                     cluster_points_indices = (labels == k)
                     cluster_points_pix = all_curve_pixels_valid[cluster_points_indices]
 
-                    if len(cluster_points_pix) < 2: # Minimo 2 punti per il fitting
+                    if len(cluster_points_pix) < 2:  # Need at least 2 points for fitting
                         continue
 
-                    # Usa il centroide del colore del cluster per disegnare i pixel
-                    # Converto da RGB (kmeans_centers) a BGR (OpenCV)
-                    color_bgr = (int(cluster_centers_rgb[k][2]), int(cluster_centers_rgb[k][1]), int(cluster_centers_rgb[k][0]))
+                    # Draw cluster pixels using centroid color (convert RGB to BGR)
+                    color_bgr = (
+                        int(cluster_centers_rgb[k][2]),
+                        int(cluster_centers_rgb[k][1]),
+                        int(cluster_centers_rgb[k][0])
+                    )
                     for pt in cluster_points_pix:
-                        cv2.circle(clustered_image, tuple(pt), 1, color_bgr, -1) # Disegna il pixel
+                        cv2.circle(clustered_image, tuple(pt), 1, color_bgr, -1)
 
-                    # Estrai le coordinate reali e fitta la Spline per questo cluster
-                    x_cluster_pix = cluster_points_pix[:, 0]
-                    y_cluster_pix = cluster_points_pix[:, 1]
+                    # Convert pixel coordinates to real-world values
+                    x_pix = cluster_points_pix[:, 0]
+                    y_pix = cluster_points_pix[:, 1]
+                    scale_x = (st.session_state.x1_val - st.session_state.x0_val) / (
+                        st.session_state.x1_pix - st.session_state.x0_pix + 1e-9
+                    )
+                    scale_y = (st.session_state.y1_val - st.session_state.y0_val) / (
+                        st.session_state.y1_pix - st.session_state.y0_pix + 1e-9
+                    )
+                    st.session_state.scale_x = scale_x
+                    st.session_state.scale_y = scale_y
 
-                    # Questi sono gli stessi calcoli di scala che hai già
-                    scale_x = (st.session_state.x1_val - st.session_state.x0_val) / (st.session_state.x1_pix - st.session_state.x0_pix + 1e-9)
-                    scale_y = (st.session_state.y1_val - st.session_state.y0_val) / (st.session_state.y1_pix - st.session_state.y0_pix + 1e-9)
-                    st.session_state.scale_x=scale_x
-                    st.session_state.scale_y=scale_y
+                    x_real = st.session_state.x0_val + (x_pix - st.session_state.x0_pix) * scale_x
+                    y_real = st.session_state.y0_val + (y_pix - st.session_state.y0_pix) * scale_y
 
-                    x_cluster_real = st.session_state.x0_val + (x_cluster_pix - st.session_state.x0_pix) * scale_x
-                    y_cluster_real = st.session_state.y0_val + (y_cluster_pix - st.session_state.y0_pix) * scale_y
+                    # Handle duplicates for fitting
+                    df_cluster = pd.DataFrame({'X': x_real, 'Y': y_real})
+                    df_unique = df_cluster.groupby('X')['Y'].mean().reset_index()
+                    x_unique = df_unique['X'].values
+                    y_unique = df_unique['Y'].values
 
-                    # Ordina e gestisci i duplicati per il fitting
-                    df_cluster = pd.DataFrame({'X': x_cluster_real, 'Y': y_cluster_real})
-                    df_cluster_unique_x = df_cluster.groupby('X')['Y'].mean().reset_index()
-                    x_cluster_unique = df_cluster_unique_x['X'].values
-                    y_cluster_unique = df_cluster_unique_x['Y'].values
-
-                    if len(x_cluster_unique) < 2:
-                        st.warning(f"Cluster Colore {k}: Punti insufficienti per il fitting dopo la pulizia dei duplicati.")
+                    if len(x_unique) < 2:
+                        st.warning(f"Cluster Color {k}: insufficient points for fitting after duplicate removal.")
                         continue
 
-                    # Fitting con Spline (come nel tuo codice esistente)
+                    # Fit with a spline
                     try:
-                        s_val = 0.5 * np.var(y_cluster_unique) * len(y_cluster_unique)
-                        if s_val == 0: s_val = 1e-6
-                        spline = UnivariateSpline(x_cluster_unique, y_cluster_unique, s=s_val)
-                        x_fit_cluster = np.linspace(x_cluster_unique.min(), x_cluster_unique.max() + forecast_length, 200)
-                        y_fit_cluster = spline(x_fit_cluster)
+                        s_val = 0.5 * np.var(y_unique) * len(y_unique)
+                        if s_val == 0:
+                            s_val = 1e-6
+                        spline = UnivariateSpline(x_unique, y_unique, s=s_val)
+                        x_fit = np.linspace(x_unique.min(), x_unique.max() + forecast_length, 200)
+                        y_fit = spline(x_fit)
 
-                        all_fitted_x_clusters.append(x_fit_cluster)
-                        all_fitted_y_clusters.append(y_fit_cluster)
-                        label = f"Cluster Colore {k}"
-                        color = tuple(cluster_centers_rgb[k])
-                        cluster_info_list.append({"label": label, "color_rgb": color, "equation": "Spline (non esplicita)"})
+                        all_fitted_x_clusters.append(x_fit)
+                        all_fitted_y_clusters.append(y_fit)
+                        cluster_info_list.append({
+                            "label": f"Cluster Color {k}",
+                            "color_rgb": tuple(cluster_centers_rgb[k]),
+                            "equation": "Spline (non-explicit)"
+                        })
                     except Exception as e:
-                            st.warning(f"Fitting Spline fallito per Cluster Colore {k}: {e}")
-                    continue
-                
-                # Visualizza l'immagine con i cluster colorati
-                st.image(clustered_image, caption="Curve Clusterizzate per Colore", channels="BGR", use_container_width=True)
+                        st.warning(f"Spline fitting failed for Cluster Color {k}: {e}")
+                        continue
 
-                # Visualizza i dettagli dei cluster
-                st.subheader("📊 Dettagli dei Cluster (per Colore)")
+                # Show the colored-cluster image and details
+                st.image(
+                    clustered_image,
+                    caption="Color-Clustered Curves",
+                    channels="BGR",
+                    use_container_width=True
+                )
+                st.subheader("📊 Cluster Details (Color-Based)")
                 if cluster_info_list:
                     for info in cluster_info_list:
-                        st.write(f"- **{info['label']}** (colore: RGB{info['color_rgb']})")
-                        st.write(f"  Equazione: {info['equation']}")
-                        #st.session_state.colore_cluster=info['color_rgb']
-                    # st.session_state.cluster_labels =info['label']
+                        st.write(f"- **{info['label']}** (color: RGB{info['color_rgb']})")
+                        st.write(f"  Equation: {info['equation']}")
                 else:
-                    st.info("Nessun cluster significativo rilevato per il fitting basato sul colore.")
+                    st.info("No significant clusters detected for color-based fitting.")
                 st.session_state.cluster_metadata = cluster_info_list
 
                 return all_fitted_x_clusters, all_fitted_y_clusters, None
@@ -1250,15 +1402,13 @@ def estraigrafico():
 
             elif method == "Symbolic Regression":
                 try:
-                    # Pysr non è un modulo standard e potrebbe non essere installato.
-                    # Assicurati di importarlo solo se è disponibile o gestisci l'errore.
                     from pysr import PySRRegressor
                     pysr_available = True
                 except ImportError:
                     pysr_available = False
 
                 if not pysr_available:
-                    st.warning("PySR non è installato. Installalo con 'pip install pysr'.")
+                    st.warning("PySR is not installed. Install it with 'pip install pysr'.")
                     return x_unique, y_unique, None
                 try:
                     model = PySRRegressor(
@@ -1271,10 +1421,10 @@ def estraigrafico():
                     model.fit(x_unique.reshape(-1, 1), y_unique)
                     y_fit = model.predict(x_extended.reshape(-1, 1))
                     params = model
-                    st.write("Formula trovata:", model.sympy_formula())
+                    st.write("Found formula:", model.sympy_formula())
                     return x_extended, y_fit, params
                 except Exception as e:
-                    st.warning(f"Symbolic regression fallita: {e}")
+                    st.warning(f"Symbolic regression failed: {e}")
                     return x_unique, y_unique, None
             else:
                 return x_unique, y_unique, None
@@ -1360,8 +1510,9 @@ def estraigrafico():
                     )
                         
                 if result_from_fit_curve is None:
-                    st.warning(f"Il fit per il componente '{method_name}' ha fallito. Saltando questo componente.")
-                    continue 
+                    st.warning(f"The fit for component '{method_name}' failed. Skipping this component.")
+                    continue
+
 
                 x_fit_component_raw, y_fit_component_raw, _ = result_from_fit_curve
 
@@ -1369,7 +1520,7 @@ def estraigrafico():
 
 
                 # Regola il componente: sottrai la media se non è il primo componente e non è un metodo di clustering
-                if i > 0 and method_name not in ["Chiudi Contorno", "Cluster Colore"]:
+                if i > 0 and method_name not in ["Closed path", "Cluster Color"]:
                     mean_to_remove = np.mean(y_fit_component_aligned)
                     y_fit_component_final = y_fit_component_aligned - mean_to_remove
                     description_parts.append(f"+ ({method_name} - media)")
@@ -1383,7 +1534,7 @@ def estraigrafico():
                 current_residuals_y = y_original - y_combined_at_original_x
 
             if not description_parts: 
-                st.warning("Nessun fit combinato valido è stato generato.")
+                st.warning("No combine fit generated.")
                 return 
             
             combined_description = " + ".join(description_parts)
@@ -1430,8 +1581,8 @@ def estraigrafico():
             enable_data_filter = get("Param_Enable_Data_Filter", False, bool)
             filter_window_size = get("Param_Filter_Window_Size", 7, int)
             iqr_multiplier = get("Param_IQR_Multiplier", 1.5, float)
-            fit_method_Reg = get("Param_Fit_Method_Reg", "Nessuno_Reg", str)
-            fit_method_Clust = get("Param_Fit_Method_Clust", "Nessuno_Clust", str)
+            fit_method_Reg = get("Param_Fit_Method_Reg", "No_Reg", str)
+            fit_method_Clust = get("Param_Fit_Method_Clust", "No_Clust", str)
             window_size = get("Param_Window_Size_MA", 5, int)
             hidden_layers = get("Param_NN_Hidden_Layers", "8", str)
             activation = get("Param_NN_Activation", "relu", str)
@@ -1478,7 +1629,7 @@ def estraigrafico():
             cluster_label_col = None
             cluster_color_col = None
             y_fourier_clusters_cols = dict()
-            if fit_method_Clust in ("Chiudi Contorno", "Cluster Colore"):
+            if fit_method_Clust in ("Closed path", "Cluster Color"):
                 xclust_list, yclust_list, _ = fit_curve(
                     df_points, fit_method_Clust, forecast_length, hidden_layers, activation, max_iter,
                     mask_curve_only=mask_curve_only, original_image_rgb=cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
@@ -1533,7 +1684,7 @@ def estraigrafico():
 
         # --- INIZIO BLOCCO PRINCIPALE STREAMLIT ---
         if uploaded_file is not None:
-            # Inizializzazione di session_state se non già presenti (cruciale per DBSCAN/Cluster Colore)
+            # Inizializzazione di session_state se non già presenti (cruciale per DBSCAN/Cluster Color)
             if 'x0_pix' not in st.session_state:
                 st.session_state.x0_pix = 0
                 st.session_state.x1_pix = 1
@@ -1554,28 +1705,41 @@ def estraigrafico():
             img_bgr = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
             if img_bgr is None:
-                st.error("Errore nel decodificare l'immagine. Il file potrebbe non essere valido o corrotto.")
+                st.error("Error decoding the image. The file may be invalid or corrupted.")
             else:
                 original_image_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
                 st.session_state.original_image_rgb = original_image_rgb    
-            
+
             col1, col2 = st.columns([1, 1])
             with col1:
-                with st.expander("🖼️ Immagine originale"):        
-                    st.image(original_image_rgb, caption="Immagine Originale Caricata (RGB)", use_container_width=True)
+                with st.expander("🖼️ Original Image"):        
+                    st.image(original_image_rgb, caption="Loaded Original Image (RGB)", use_container_width=True)
 
                 gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
                 st.session_state.gray_image = gray
-                # 2. Chiama process_image e salva i risultati importanti in session_state
-                ocr_result, mask_lines, mask_curve_only, _ = process_image(img_bgr, st.session_state.canny_low, st.session_state.canny_high, st.session_state.hough_thresh, st.session_state.hough_min_length, st.session_state.hough_max_gap, st.session_state.tol_dx, st.session_state.tol_dy, st.session_state.threshold_val, st.session_state.invert_threshold, st.session_state.alpha_contrast, st.session_state.beta_brightness)
+                # 2. Call process_image and save the important results in session_state
+                ocr_result, mask_lines, mask_curve_only, _ = process_image(
+                    img_bgr,
+                    st.session_state.canny_low,
+                    st.session_state.canny_high,
+                    st.session_state.hough_thresh,
+                    st.session_state.hough_min_length,
+                    st.session_state.hough_max_gap,
+                    st.session_state.tol_dx,
+                    st.session_state.tol_dy,
+                    st.session_state.threshold_val,
+                    st.session_state.invert_threshold,
+                    st.session_state.alpha_contrast,
+                    st.session_state.beta_brightness
+                )
                 st.session_state.mask_curve_only = mask_curve_only        
-                
+
             with col2:
-                with st.expander("🧠 Testo rilevato:"):
+                with st.expander("🧠 Detected Text:"):
                     st.text(ocr_result)       
-                with st.expander("🔲 Pezzi di immagine esclusi dal fitting"):
+                with st.expander("🔲 Image parts excluded from fitting"):
                     st.image(mask_lines, clamp=True)        
-            
+
             background_image_for_canvas = None
             if 'mask_curve_only' in st.session_state and st.session_state.mask_curve_only is not None:
                 current_mask_for_canvas = st.session_state.mask_curve_only
@@ -1585,11 +1749,12 @@ def estraigrafico():
                         mask_rgb = cv2.cvtColor(mask_bgr, cv2.COLOR_BGR2RGB)
                         background_image_for_canvas = Image.fromarray(mask_rgb)
                     except Exception as e:
-                        st.error(f"Errore nella conversione della maschera per il canvas: {e}. Il canvas sarà vuoto.")
+                        st.error(f"Error converting the mask for the canvas: {e}. The canvas will be empty.")
                 else:
-                    st.warning("La maschera della curva è vuota o malformata nello stato della sessione. Il canvas sarà vuoto.")
+                    st.warning("The curve mask is empty or malformed in the session state. The canvas will be empty.")
             else:
-                st.warning("Maschera della curva non disponibile nello stato della sessione. Carica un'immagine e binarizzala.")
+                st.warning("Curve mask not available in session state. Upload an image and binarize it.")
+
             # creo l'altezza e larghezza per il canvas di editing
             if 'mask_curve_only' in st.session_state and st.session_state.mask_curve_only is not None:
                 # Assicurati che current_mask_for_canvas sia un NumPy array valido qui
@@ -1625,40 +1790,45 @@ def estraigrafico():
             except ValueError as e:
                 # Gestione specifica di un errore comune con st_canvas se l'immagine di sfondo non è valida.
                 if "The truth value of an array with more than one element is ambiguous" in str(e):
-                    st.error("Si è verificato un problema con l'immagine di sfondo del canvas. Assicurati che sia valida e riprova a caricarla.")
+                    st.error("A problem occurred with the canvas background image. Please ensure it is valid and try uploading it again.")
                     canvas_result = None # Assicura che canvas_result sia None per evitare errori successivi
                 else:
                     # Se l'errore non è quello specifico, rilanciarlo per non nascondere altri problemi.
                     raise e
             except Exception as e:
-                # Cattura qualsiasi altro errore inatteso che potrebbe verificarsi durante la creazione del canvas.
-                st.error(f"Si è verificato un errore inatteso durante l'utilizzo dello strumento di editing: {e}")
-                canvas_result = None # Assicura che canvas_result sia None
+                # Catch any other unexpected errors that might occur while using the editing tool.
+                st.error(f"An unexpected error occurred while using the editing tool: {e}")
+                canvas_result = None  # Ensure that canvas_result is None
 
-            # --- PROCESSA IL RISULTATO DEL CANVAS ---
+            # --- PROCESS THE CANVAS RESULT ---
             if canvas_result is not None and canvas_result.image_data is not None:
-                drawn_mask = canvas_result.image_data[:, :, 3] > 0 # Maschera booleana dei pixel interagiti (dove alpha > 0)
+                drawn_mask = canvas_result.image_data[:, :, 3] > 0  # Boolean mask of interacted pixels (where alpha > 0)
 
                 if 'mask_curve_only' in st.session_state:
-                    current_mask = st.session_state.mask_curve_only.copy() # Lavora sempre su una copia
-                    
-                    if editing_mode == "Penna (Bianca)":
-                        current_mask[drawn_mask] = 255 # Imposta a BIANCO sulla maschera
-                        st.info("Pixel cancellati (impostati a bianco) dalla maschera.")
+                    current_mask = st.session_state.mask_curve_only.copy()  # Always work on a copy
 
-                    elif editing_mode == "Penna (Nera)":
-                        current_mask[drawn_mask] = 0 # Imposta a NERO sulla maschera
-                        st.info("Pixel aggiunti (impostati a nero) alla maschera.")
-                    
-                    st.session_state.mask_curve_only = current_mask # Salva la maschera modificata
-                    
-                    st.subheader("Maschera Curva Modificata")
-                    # Converti la maschera da scala di grigi a BGR per st.image
-                    st.image(cv2.cvtColor(st.session_state.mask_curve_only, cv2.COLOR_GRAY2BGR), use_container_width=True, caption="Maschera binaria dopo editing (Nero/Bianco)")
+                    if editing_mode == "Pen (White)":
+                        current_mask[drawn_mask] = 255  # Set to WHITE on the mask
+                        st.info("Pixels removed (set to white) from the mask.")
+
+                    elif editing_mode == "Pen (Black)":
+                        current_mask[drawn_mask] = 0  # Set to BLACK on the mask
+                        st.info("Pixels added (set to black) to the mask.")
+
+                    st.session_state.mask_curve_only = current_mask  # Save the modified mask
+
+                    st.subheader("Modified Curve Mask")
+                    # Convert the mask from grayscale to BGR for st.image
+                    st.image(
+                        cv2.cvtColor(st.session_state.mask_curve_only, cv2.COLOR_GRAY2BGR),
+                        use_container_width=True,
+                        caption="Binary mask after editing (Black/White)"
+                    )
                 else:
-                    st.warning("Maschera curva non disponibile per l'editing.")
+                    st.warning("Curve mask not available for editing.")
             st.divider()
-            with st.expander("🟢 Immagine per il fit"):
+            with st.expander("🟢 Image for fit"):
+
                         st.image(st.session_state.mask_curve_only, clamp=True)        
                     # Il background del canvas sarà sempre la maschera binaria
             # Pass all relevant parameters to extract_and_convert_points
@@ -1678,126 +1848,178 @@ def estraigrafico():
                 y_max = y_max_data
                 with st.expander("Fitting"):
                     fig, ax = plt.subplots(figsize=(8, 5))
-                    ax.plot(df["X"], df["Y"], color='blue', label="Dati rilevati")
-                    
+                    ax.plot(df["X"], df["Y"], color='blue', label="Detected Data")
+
                     equation_params = None
-                    x_fit, y_fit = None, None # Initialize x_fit, y_fit
-                    x_approx_fourier, y_approx_fourier = None, None # Initialize Fourier variables
+                    x_fit, y_fit = None, None                    # Initialize x_fit, y_fit
+                    x_approx_fourier, y_approx_fourier = None, None  # Initialize Fourier variables
 
-                    if st.session_state.fit_method_Reg != "Nessuno_Reg" and not st.session_state.Combine_Methods_Bt: 
-                        x_fit, y_fit, equation_params = fit_curve(df, st.session_state.fit_method_Reg, st.session_state.forecast_length, st.session_state.hidden_layers, st.session_state.activation, st.session_state.max_iter, mask_curve_only=st.session_state.mask_curve_only, original_image_rgb=original_image_rgb)
-                        
-                        st.session_state.y_fit_primary=y_fit
-                        ax.plot(x_fit, y_fit, color='red', label="Andamento regressione combinata")
+                    # Primary regression or clustering fit
+                    if st.session_state.fit_method_Reg != "No_Reg" and not st.session_state.Combine_Methods_Bt:
+                        x_fit, y_fit, equation_params = fit_curve(
+                            df,
+                            st.session_state.fit_method_Reg,
+                            st.session_state.forecast_length,
+                            st.session_state.hidden_layers,
+                            st.session_state.activation,
+                            st.session_state.max_iter,
+                            mask_curve_only=st.session_state.mask_curve_only,
+                            original_image_rgb=original_image_rgb
+                        )
+                        st.session_state.y_fit_primary = y_fit
+                        ax.plot(x_fit, y_fit, color='red', label="Regression Trend")
+
                     elif st.session_state.Combine_Methods_Bt:
-                        x_fit, y_fit, equation_params = combine_fits_iteratively(df, list_of_methods_config, st.session_state.forecast_length, st.session_state.hidden_layers, st.session_state.activation, st.session_state.max_iter, mask_curve_only=st.session_state.mask_curve_only, original_image_rgb=original_image_rgb)
-                        ax.plot(x_fit, y_fit, color='green', label="Andamento regressione combinata")
-                        
-                        st.session_state.y_fit_primary=y_fit
-                    elif st.session_state.fit_method_Clust != "Nessuno_Clust" and not st.session_state.Combine_Methods_Bt: # Se non è stato scelto Reg, controlla Clust            
-                        # Assumiamo che fit_curve possa gestire anche i metodi "Clust"
-                        x_fit, y_fit, equation_params = fit_curve(df, st.session_state.fit_method_Clust, st.session_state.forecast_length, st.session_state.hidden_layers, st.session_state.activation, st.session_state.max_iter, mask_curve_only=st.session_state.mask_curve_only, original_image_rgb=original_image_rgb)            
-                        
-                        st.session_state.y_fit_primary=y_fit
-                        ax.plot(x_fit, y_fit, color='red', )
-                        
-                    # ... (il tuo codice per il plotting) ...
+                        x_fit, y_fit, equation_params = combine_fits_iteratively(
+                            df,
+                            list_of_methods_config,
+                            st.session_state.forecast_length,
+                            st.session_state.hidden_layers,
+                            st.session_state.activation,
+                            st.session_state.max_iter,
+                            mask_curve_only=st.session_state.mask_curve_only,
+                            original_image_rgb=original_image_rgb
+                        )
+                        st.session_state.y_fit_primary = y_fit
+                        ax.plot(x_fit, y_fit, color='green', label="Combined Regression Trend")
 
-                    # CHIAMA cosine_similarity_between_curves SOLO SE x_fit E y_fit NON SONO NONE
+                    elif st.session_state.fit_method_Clust != "No_Clust" and not st.session_state.Combine_Methods_Bt:
+                        x_fit, y_fit, equation_params = fit_curve(
+                            df,
+                            st.session_state.fit_method_Clust,
+                            st.session_state.forecast_length,
+                            st.session_state.hidden_layers,
+                            st.session_state.activation,
+                            st.session_state.max_iter,
+                            mask_curve_only=st.session_state.mask_curve_only,
+                            original_image_rgb=original_image_rgb
+                        )
+                        st.session_state.y_fit_primary = y_fit
+                        ax.plot(x_fit, y_fit, color='red')
+
+                    # Compute and display cosine similarity if fit exists
                     if x_fit is not None and y_fit is not None:
-                        # Aggiungi un controllo per assicurarti che mask_curve_centered sia disponibile
-                        # e abbia la forma corretta, altrimenti la riga 1030 potrebbe dare un altro errore
-                        # se mask_curve_centered non è stata definita/inizializzata correttamente
-                        # o se è None (non è nel codice che hai mostrato, ma è un parametro)
-                        if 'mask_curve_centered' in locals() and mask_curve_centered is not None and mask_curve_centered.ndim >= 2:
-                            similarità = cosine_similarity_between_curves(x_fit, y_fit, mask_curve_centered.shape, mask_curve_centered, x0_pix, x1_pix, x0_val, x1_val, y0_pix, y1_pix, y0_val, y1_val)
-                            st.metric("Cosine Similarity", f"{similarità:.3f}")
+                        if ('mask_curve_centered' in locals()
+                            and mask_curve_centered is not None
+                            and mask_curve_centered.ndim >= 2):
+                            similarity = cosine_similarity_between_curves(
+                                x_fit, y_fit,
+                                mask_curve_centered.shape,
+                                mask_curve_centered,
+                                x0_pix, x1_pix, x0_val, x1_val,
+                                y0_pix, y1_pix, y0_val, y1_val
+                            )
+                            st.metric("Cosine Similarity", f"{similarity:.3f}")
                         else:
-                            st.warning("Impossibile calcolare la Cosine Similarity: la maschera centrata non è disponibile o è malformata.")
+                            st.warning(
+                                "Cannot calculate Cosine Similarity: centered mask is not available or is malformed."
+                            )
                     else:
-                        st.info("Nessun fit calcolato, la Cosine Similarity non verrà mostrata.")
-                    if (st.session_state.fit_method_Clust != "Nessuno_Clust"):
-                            # Display the equation for the primary fit
+                        st.info("No fit calculated; Cosine Similarity will not be shown.")
+
+                    # Display equations for primary fits
+                    if st.session_state.fit_method_Clust != "No_Clust":
                         write_equation(st.session_state.fit_method_Clust, equation_params)
-                    if (st.session_state.fit_method_Reg != "Nessuno_Reg"):
-                            # Display the equation for the primary fit
+                    if st.session_state.fit_method_Reg != "No_Reg":
                         write_equation(st.session_state.fit_method_Reg, equation_params)
-                            # --- Fourier Approximation for non-explicit fits ---
-                            # Check if the primary fit is non-explicit AND user wants Fourier approximation
-                    non_explicit_methods = ["Spline", "Rete Neurale", "Random Forest Regression", "Gradient Boosting", "Support Vector Regression", "Chiudi Contorno", "Cluster Colore"] # Aggiungi Cluster Colore
-                    if st.session_state.approx_fourier and (st.session_state.fit_method_Clust in non_explicit_methods or st.session_state.fit_method_Reg in non_explicit_methods or st.session_state.Combine_Methods_Bt):
-                            st.markdown("---") # Separator
-                            st.subheader("Approssimazione Fourier della Curva Fittata")
-                                # Se il fit primario è "Chiudi Contorno" o "Cluster Colore", dobbiamo approssimare ogni curva
-                            if st.session_state.fit_method_Clust in ["Chiudi Contorno", "Cluster Colore"] and x_fit and y_fit:
-                                for i in range(len(x_fit)):
-                                    if x_fit[i] is not None and y_fit[i] is not None and len(x_fit[i]) > 0 and len(y_fit[i]) > 0:
-                                        temp_x_approx_fourier, temp_y_approx_fourier, fourier_approx_params = approximate_curve_with_fourier(x_fit[i], y_fit[i], st.session_state.fourier_approx_harmonics)
-                                        st.session_state.temp_y_approx_fourier[i] = temp_y_approx_fourier # Usa 'i' come chiave per il cluster
-                                        if temp_x_approx_fourier is not None and temp_y_approx_fourier is not None:
-                                            ax.plot(temp_x_approx_fourier, temp_y_approx_fourier, color='purple', linestyle=':', label=f"Appross. Fourier Cluster {i}")
-                                            write_equation("Fourier", fourier_approx_params, approx_type=f"Appross. Fourier Cluster {i}")
-                                            
-                            else: # Per i metodi con un singolo fit
-                                x_approx_fourier, y_approx_fourier, fourier_approx_params = approximate_curve_with_fourier(x_fit, y_fit, st.session_state.fourier_approx_harmonics)
-                                st.session_state.y_approx_fourier=y_approx_fourier
-                                if x_approx_fourier is not None and y_approx_fourier is not None:
-                                    ax.plot(x_approx_fourier, y_approx_fourier, color='green', linestyle='--', label=f"Appross. Fourier ({st.session_state.fourier_approx_harmonics} arm.)")
-                                    write_equation("Fourier", fourier_approx_params, approx_type="Approssimazione Fourier")
-                                else:
-                                    st.info("Impossibile calcolare l'approssimazione Fourier per la curva fittata.")
 
+                    # Fourier Approximation for non-explicit fits
+                    non_explicit_methods = [
+                        "Spline", "Neural Network", "Random Forest Regression",
+                        "Gradient Boosting", "Support Vector Regression",
+                        "Closed path", "Cluster Color"
+                    ]
+                    if (st.session_state.approx_fourier
+                        and (st.session_state.fit_method_Clust in non_explicit_methods
+                            or st.session_state.fit_method_Reg in non_explicit_methods
+                            or st.session_state.Combine_Methods_Bt)):
+                        st.markdown("---")
+                        st.subheader("Fourier Approximation of Fitted Curve")
 
-                            ax.legend()
-                            ax.set_xlabel("X")
-                            ax.set_ylabel("Y")
-                            ax.set_title("Riconoscimento grafico con previsione")
+                        # Handle multiple clusters
+                        if (st.session_state.fit_method_Clust in ["Closed path", "Cluster Color"]
+                            and x_fit and y_fit):
+                            for i, (xf, yf) in enumerate(zip(x_fit, y_fit)):
+                                if xf is not None and yf is not None and len(xf) > 0 and len(yf) > 0:
+                                    temp_x, temp_y, fourier_params = approximate_curve_with_fourier(
+                                        xf, yf, st.session_state.fourier_approx_harmonics
+                                    )
+                                    st.session_state.temp_y_approx_fourier[i] = temp_y
+                                    if temp_x is not None and temp_y is not None:
+                                        ax.plot(
+                                            temp_x, temp_y,
+                                            linestyle=':',
+                                            label=f"Fourier Approx Cluster {i}",
+                                            color='purple'
+                                        )
+                                        write_equation(
+                                            "Fourier",
+                                            fourier_params,
+                                            approx_type=f"Fourier Approx Cluster {i}"
+                                        )
+                        else:
+                            x_approx_fourier, y_approx_fourier, fourier_params = approximate_curve_with_fourier(
+                                x_fit, y_fit, st.session_state.fourier_approx_harmonics
+                            )
+                            st.session_state.y_approx_fourier = y_approx_fourier
+                            if x_approx_fourier is not None and y_approx_fourier is not None:
+                                ax.plot(
+                                    x_approx_fourier, y_approx_fourier,
+                                    linestyle='--',
+                                    label=f"Fourier Approx ({st.session_state.fourier_approx_harmonics} harm.)"
+                                )
+                                write_equation("Fourier", fourier_params, approx_type="Fourier Approximation")
+                            else:
+                                st.info("Cannot compute Fourier approximation for the fitted curve.")
 
-                            ax.set_xlim(x_min, x_max)
-                            ax.set_ylim(y_min, y_max)
+                        ax.legend()
+                        ax.set_xlabel("X")
+                        ax.set_ylabel("Y")
+                        ax.set_title("Curve Recognition with Forecast")
+                        ax.set_xlim(x_min, x_max)
+                        ax.set_ylim(y_min, y_max)
+                        plt.tight_layout()
 
-                            plt.tight_layout()
+                    # Center plot if requested
                     if center_plot:
-                        # Ensure x_fit and y_fit are defined before concatenating
-                        all_x_to_consider = df["X"]
-                        all_y_to_consider = df["Y"]
+                        all_x = df["X"].copy()
+                        all_y = df["Y"].copy()
 
-                        # Gestione del caso "Chiudi Contorno" o "Cluster Colore"
-                        if st.session_state.fit_method_Clust in ["Chiudi Contorno", "Cluster Colore"] and x_fit and y_fit:
-                            for single_x_fit, single_y_fit in zip(x_fit, y_fit):
-                                if single_x_fit is not None and single_y_fit is not None and len(single_x_fit) > 0 and len(single_y_fit) > 0:
-                                    all_x_to_consider = np.concatenate([all_x_to_consider, single_x_fit])
-                                    all_y_to_consider = np.concatenate([all_y_to_consider, single_y_fit])                                
+                        # Include cluster fits
+                        if (st.session_state.fit_method_Clust in ["Closed path", "Cluster Color"]
+                            and x_fit and y_fit):
+                            for xf, yf in zip(x_fit, y_fit):
+                                if xf is not None and yf is not None and len(xf) and len(yf):
+                                    all_x = np.concatenate([all_x, xf])
+                                    all_y = np.concatenate([all_y, yf])
                         elif x_fit is not None and y_fit is not None:
-                            all_x_to_consider = np.concatenate([all_x_to_consider, x_fit])
-                            all_y_to_consider = np.concatenate([all_y_to_consider, y_fit])
-                        
-                        # x_approx_fourier e y_approx_fourier sono già inizializzati a None, quindi il check è sicuro
+                            all_x = np.concatenate([all_x, x_fit])
+                            all_y = np.concatenate([all_y, y_fit])
+
                         if x_approx_fourier is not None and y_approx_fourier is not None:
-                            all_x_to_consider = np.concatenate([all_x_to_consider, x_approx_fourier])
-                            all_y_to_consider = np.concatenate([all_y_to_consider, y_approx_fourier])
+                            all_x = np.concatenate([all_x, x_approx_fourier])
+                            all_y = np.concatenate([all_y, y_approx_fourier])
 
-                        if len(all_x_to_consider) > 1 and len(all_y_to_consider) > 1:
-                            margin_x = (all_x_to_consider.max() - all_x_to_consider.min()) * 0.05
-                            margin_y = (all_y_to_consider.max() - all_y_to_consider.min()) * 0.05
-                            ax.set_xlim(all_x_to_consider.min() - margin_x, all_x_to_consider.max() + margin_x)
-                            ax.set_ylim(all_y_to_consider.min() - margin_y, all_y_to_consider.max() + margin_y)
-                        elif len(all_x_to_consider) == 1: # Handle case with single point
-                            ax.set_xlim(all_x_to_consider[0] - 1, all_x_to_consider[0] + 1)
-                            ax.set_ylim(all_y_to_consider[0] - 1, all_y_to_consider[0] + 1)
+                        if len(all_x) > 1 and len(all_y) > 1:
+                            margin_x = (all_x.max() - all_x.min()) * 0.05
+                            margin_y = (all_y.max() - all_y.min()) * 0.05
+                            ax.set_xlim(all_x.min() - margin_x, all_x.max() + margin_x)
+                            ax.set_ylim(all_y.min() - margin_y, all_y.max() + margin_y)
+                        elif len(all_x) == 1:
+                            ax.set_xlim(all_x[0] - 1, all_x[0] + 1)
+                            ax.set_ylim(all_y[0] - 1, all_y[0] + 1)
 
-                        st.pyplot(fig)            
+                        st.pyplot(fig)
 
-                        
-                        # Se per qualche motivo viene sovrascritto con un tipo non-dizionario, reinizializzalo.
-                if "temp_y_approx_fourier" not in st.session_state or not isinstance(st.session_state.temp_y_approx_fourier, dict):
-                    st.session_state.temp_y_approx_fourier = {}
-                    st.warning("st.session_state.temp_y_approx_fourier non era inizializzato o non era un dizionario. Reinizializzato a {}.")
+                    # Ensure temp_y_approx_fourier is initialized
+                    if ("temp_y_approx_fourier" not in st.session_state
+                        or not isinstance(st.session_state.temp_y_approx_fourier, dict)):
+                        st.session_state.temp_y_approx_fourier = {}
+                        st.warning("st.session_state.temp_y_approx_fourier was not initialized or not a dict. Reinitialized to {}.")
 
                 st.markdown("---")
-                
 
-                with st.expander("📥 Scarica DataFrame"):       
+                with st.expander("📥 Download DataFrame"):  
                     params = st.session_state.sidebar_params
                     enable_data_filter = params['enable_data_filter']
                     filter_window_size = params['filter_window_size']
@@ -1909,108 +2131,103 @@ def estraigrafico():
                                     if st.session_state.colore_cluster.ndim == 1 and st.session_state.colore_cluster.size > 0 and isinstance(st.session_state.colore_cluster[0], (tuple, list)):
                                         # Se è un array di tuple/liste (come [(R,G,B), (R,G,B), ...])
                                         st.session_state.colore_cluster = np.vstack(st.session_state.colore_cluster)
-                                    st.info(f"Convertito st.session_state.colore_cluster in numpy array. Forma: {st.session_state.colore_cluster.shape}.")
+                                    st.info(f"Converted st.session_state.colore_cluster to a NumPy array. Shape: {st.session_state.colore_cluster.shape}.")
                                 except ValueError:
-                                    st.warning("Impossibile convertire st.session_state.colore_cluster in un array NumPy N_x_3. Assicurati che i suoi elementi siano tuplex3 o listx3.")
-                                    st.session_state.colore_cluster = np.array([]) # Lo svuota per evitare errori successivi
-                            
-                            if isinstance(st.session_state.colore_cluster, np.ndarray) and st.session_state.colore_cluster.ndim == 1:
-                                # Se è un array 1D ma dovrebbe essere N_x_3, questo è un problema.
-                                # Potrebbe essere che contiene un solo colore per tutti i punti?
-                                st.warning("st.session_state.colore_cluster è un array 1D. Potrebbe non essere nel formato [N, 3].")
-                                # Decidi come gestirlo: riempire con NaN o assumere che sia un singolo colore
-                                # Per ora, lo lascio come warning e cerco di processarlo come N_x_3 sotto, se possibile.
-                                
-                        else:
-                            st.session_state.colore_cluster = np.array([])
-                            st.warning("st.session_state.colore_cluster non è presente o è None. Verrà trattato come vuoto per i canali RGB.")
+                                    st.warning("Cannot convert st.session_state.colore_cluster to an N×3 NumPy array. Ensure its elements are 3-tuples or 3-lists.")
+                                    st.session_state.colore_cluster = np.array([])  # Clear it to avoid further errors
 
-                        # ... (il resto della preparazione di df_final_download) ...
+                                if isinstance(st.session_state.colore_cluster, np.ndarray) and st.session_state.colore_cluster.ndim == 1:
+                                    # If it’s a 1D array but should be N×3, that’s a problem.
+                                    # It might mean there’s only one color for all points.
+                                    st.warning("st.session_state.colore_cluster is a 1D array. It may not be in [N, 3] format.")
+                                    # Decide how to handle it: fill with NaN or treat as a single color.
+                                    # For now, just warn and attempt to treat it as N×3 later if possible.
 
-                        # --- AGGIUNGI COLONNE COLORE_CLUSTER (R, G, B) ---
-                        if st.session_state.colore_cluster.size > 0 and st.session_state.colore_cluster.ndim == 2 and st.session_state.colore_cluster.shape[1] == 3:
-                            # Se è un array Nx3, estrai i canali
-                            min_len_colors = min(len(df_final_download), st.session_state.colore_cluster.shape[0])
-                            df_final_download['colore_cluster_R'] = np.full(len(df_final_download), np.nan)
-                            df_final_download['colore_cluster_G'] = np.full(len(df_final_download), np.nan)
-                            df_final_download['colore_cluster_B'] = np.full(len(df_final_download), np.nan)
-
-                            df_final_download['colore_cluster_R'].iloc[:min_len_colors] = st.session_state.colore_cluster[:min_len_colors, 0]
-                            df_final_download['colore_cluster_G'].iloc[:min_len_colors] = st.session_state.colore_cluster[:min_len_colors, 1]
-                            df_final_download['colore_cluster_B'].iloc[:min_len_colors] = st.session_state.colore_cluster[:min_len_colors, 2]
-                        else:
-                            st.warning("st.session_state.colore_cluster non è nel formato atteso (Nx3) o è vuoto. Le colonne R, G, B saranno NaN.")
-                            df_final_download['colore_cluster_R'] = np.full(len(df_final_download), np.nan)
-                            df_final_download['colore_cluster_G'] = np.full(len(df_final_download), np.nan)
-                            df_final_download['colore_cluster_B'] = np.full(len(df_final_download), np.nan)
-
-                        # --- Aggiungi la Y del fit primario (basata su x_extended) ---
-                        df_final_download['y_fit_primary'] = np.full(len(df_final_download), np.nan)
-                        if st.session_state.y_fit_primary.size > 0:
-                            y_val = np.atleast_1d(st.session_state.y_fit_primary)
-                            min_len = min(len(df_final_download), len(y_val))
-                            df_final_download['y_fit_primary'].iloc[:min_len] = y_val[:min_len]
-                        else:
-                            st.warning("st.session_state.y_fit_primary è vuoto. Colonna 'y_fit_primary' riempita con NaN.")
-                                
-                        # --- Aggiungi la Y dell'approssimazione di Fourier (basata su x_extended) ---
-                        df_final_download['y_approx_fourier'] = np.full(len(df_final_download), np.nan)
-                        if st.session_state.y_approx_fourier.size > 0:
-                            y_val = np.atleast_1d(st.session_state.y_approx_fourier)
-                            min_len = min(len(df_final_download), len(y_val))
-                            df_final_download['y_approx_fourier'].iloc[:min_len] = y_val[:min_len]
-                        else:
-                            st.warning("st.session_state.y_approx_fourier è vuoto. Colonna 'y_approx_fourier' riempita con NaN.")
-
-                        # --- Gestione di Y_Real_Original ---
-                        df_final_download['Y_Real_Original'] = np.nan
-                        # --- Aggiungi cluster_labels quando x_extended è disponibile ---
-                        df_final_download['cluster_labels'] = np.full(len(df_final_download), np.nan)
-
-                        if isinstance(st.session_state.cluster_labels, np.ndarray) and st.session_state.cluster_labels.size > 0:
-                            # Il tuo codice attuale che usa cluster_labels, ad esempio per iterare o analizzare
-                            st.write("Cluster labels are a non-empty NumPy array.")
-                            # ... il resto della tua logica ...
-                        elif isinstance(st.session_state.cluster_labels, np.ndarray) and st.session_state.cluster_labels.size == 0:
-                            st.write("Cluster labels sono un array NumPy vuoto. Nessun cluster trovato o elaborato.")
-                            # Qui puoi gestire il caso in cui non ci sono cluster da mostrare/processare
-                        else:
-                            # Questo è il caso in cui non è un array NumPy (è una stringa, None, lista, ecc.)
-                            st.error(f"Errore: st.session_state.cluster_labels non è un array NumPy. Tipo attuale: {type(st.session_state.cluster_labels)}")
-                            # È fondamentale capire perché è diventata una stringa
-                            # Puoi anche aggiungere una logica di fallback o ignorare la sezione
-                            pass
-                        
-                        # --- AGGIUNTA DELLE TRASFORMATE DI FOURIER PER OGNI CLUSTER (temp_y_approx_fourier) ---
-                        if st.session_state.temp_y_approx_fourier: # Controlla se il dizionario contiene elementi
-                            for cluster_labels, fourier_data in st.session_state.temp_y_approx_fourier.items():
-                                col_name = f'Fourier_Cluster_{cluster_labels}'
-                                
-                                # **ADD THIS CHECK:** Ensure fourier_data is not None before proceeding
-                                if fourier_data is None:
-                                    st.warning(f"Dati Fourier per Cluster {cluster_labels} sono None. Saltando l'elaborazione per questa colonna.")
-                                    continue # Skip to the next item in the loop
-
-                                # Assicurati che fourier_data sia un array NumPy e appiattiscilo se necessario
-                                if isinstance(fourier_data, list):
-                                    fourier_data = np.array(fourier_data)
-                                    st.info(f"Convertito Fourier_Data per Cluster {cluster_labels} da lista a numpy array.")
-                                
-                                # Now it's safe to check .ndim because we know fourier_data is not None
-                                if fourier_data.ndim > 1: # This is line 1647 in your traceback
-                                    fourier_data = fourier_data.flatten()
-                                    st.info(f"Appiattito Fourier_Data per Cluster {cluster_labels} a 1D.")
-
-                                df_final_download[col_name] = np.full(len(df_final_download), np.nan)
-                                
-                                if fourier_data.size > 0: # Questo è il controllo corretto per gli array NumPy
-                                    min_len_fourier = min(len(df_final_download), len(fourier_data))
-                                    df_final_download[col_name].iloc[:min_len_fourier] = fourier_data[:min_len_fourier]
                                 else:
-                                    st.warning(f"I dati Fourier per Cluster {cluster_labels} sono vuoti. Colonna '{col_name}' riempita con NaN.")
-                        else:
-                            st.info("Nessun dato in st.session_state.temp_y_approx_fourier da aggiungere al DataFrame.")
-                            
+                                    st.session_state.colore_cluster = np.array([])
+                                    st.warning("st.session_state.colore_cluster is not present or is None. Treated as empty for RGB channels.")
+
+                                # --- ADD COLOR_CLUSTER COLUMNS (R, G, B) ---
+                                if (
+                                    st.session_state.colore_cluster.size > 0
+                                    and st.session_state.colore_cluster.ndim == 2
+                                    and st.session_state.colore_cluster.shape[1] == 3
+                                ):
+                                    # If it’s an N×3 array, extract each channel
+                                    min_len_colors = min(len(df_final_download), st.session_state.colore_cluster.shape[0])
+                                    df_final_download['colore_cluster_R'] = np.full(len(df_final_download), np.nan)
+                                    df_final_download['colore_cluster_G'] = np.full(len(df_final_download), np.nan)
+                                    df_final_download['colore_cluster_B'] = np.full(len(df_final_download), np.nan)
+
+                                    df_final_download.loc[:min_len_colors-1, 'colore_cluster_R'] = st.session_state.colore_cluster[:min_len_colors, 0]
+                                    df_final_download.loc[:min_len_colors-1, 'colore_cluster_G'] = st.session_state.colore_cluster[:min_len_colors, 1]
+                                    df_final_download.loc[:min_len_colors-1, 'colore_cluster_B'] = st.session_state.colore_cluster[:min_len_colors, 2]
+                                else:
+                                    st.warning("st.session_state.colore_cluster is not in the expected Nx3 format or is empty. R, G, B columns will be NaN.")
+                                    df_final_download['colore_cluster_R'] = np.full(len(df_final_download), np.nan)
+                                    df_final_download['colore_cluster_G'] = np.full(len(df_final_download), np.nan)
+                                    df_final_download['colore_cluster_B'] = np.full(len(df_final_download), np.nan)
+
+                                # --- Add primary fit Y values (based on x_extended) ---
+                                df_final_download['y_fit_primary'] = np.full(len(df_final_download), np.nan)
+                                if st.session_state.y_fit_primary.size > 0:
+                                    y_val = np.atleast_1d(st.session_state.y_fit_primary)
+                                    min_len = min(len(df_final_download), len(y_val))
+                                    df_final_download.loc[:min_len-1, 'y_fit_primary'] = y_val[:min_len]
+                                else:
+                                    st.warning("st.session_state.y_fit_primary is empty. 'y_fit_primary' column filled with NaN.")
+
+                                # --- Add Fourier approximation Y values (based on x_extended) ---
+                                df_final_download['y_approx_fourier'] = np.full(len(df_final_download), np.nan)
+                                if st.session_state.y_approx_fourier.size > 0:
+                                    y_val = np.atleast_1d(st.session_state.y_approx_fourier)
+                                    min_len = min(len(df_final_download), len(y_val))
+                                    df_final_download.loc[:min_len-1, 'y_approx_fourier'] = y_val[:min_len]
+                                else:
+                                    st.warning("st.session_state.y_approx_fourier is empty. 'y_approx_fourier' column filled with NaN.")
+
+                                # --- Handle Y_Real_Original and cluster_labels ---
+                                df_final_download['Y_Real_Original'] = np.nan
+                                df_final_download['cluster_labels'] = np.full(len(df_final_download), np.nan)
+
+                                if isinstance(st.session_state.cluster_labels, np.ndarray) and st.session_state.cluster_labels.size > 0:
+                                    y_val = np.atleast_1d(st.session_state.cluster_labels)
+                                    min_len = min(len(df_final_download), len(y_val))
+                                    df_final_download.loc[:min_len-1, 'cluster_labels'] = y_val[:min_len]
+                                elif isinstance(st.session_state.cluster_labels, np.ndarray) and st.session_state.cluster_labels.size == 0:
+                                    st.write("cluster_labels is an empty NumPy array. No clusters processed.")
+                                else:
+                                    st.error(f"Error: st.session_state.cluster_labels is not a NumPy array. Current type: {type(st.session_state.cluster_labels)}")
+
+                                # --- Add Fourier transforms for each cluster (temp_y_approx_fourier) ---
+                                if st.session_state.temp_y_approx_fourier:  # Check if the dict has entries
+                                    for cluster_id, fourier_data in st.session_state.temp_y_approx_fourier.items():
+                                        col_name = f'Fourier_Cluster_{cluster_id}'
+
+                                        # Ensure fourier_data is not None before proceeding
+                                        if fourier_data is None:
+                                            st.warning(f"Fourier data for Cluster {cluster_id} is None. Skipping this column.")
+                                            continue
+
+                                        # Convert to NumPy array and flatten if needed
+                                        if isinstance(fourier_data, list):
+                                            fourier_data = np.array(fourier_data)
+                                            st.info(f"Converted Fourier data for Cluster {cluster_id} from list to NumPy array.")
+
+                                        if fourier_data.ndim > 1:  # Safe to check after conversion
+                                            fourier_data = fourier_data.flatten()
+                                            st.info(f"Flattened Fourier data for Cluster {cluster_id} to 1D.")
+
+                                        df_final_download[col_name] = np.full(len(df_final_download), np.nan)
+
+                                        if fourier_data.size > 0:  # Proper check for NumPy arrays
+                                            min_len_fourier = min(len(df_final_download), len(fourier_data))
+                                            df_final_download.loc[:min_len_fourier-1, col_name] = fourier_data[:min_len_fourier]
+                                        else:
+                                            st.warning(f"Fourier data for Cluster {cluster_id} is empty. Column '{col_name}' filled with NaN.")
+                                else:
+                                    st.info("No Fourier data in st.session_state.temp_y_approx_fourier to add.")
+
                     else: # Se x_extended non è disponibile, usa solo i punti reali come base
                         df_final_download = st.session_state.df.copy()
                         df_final_download.insert(0, 'N', np.arange(1, len(df_final_download) + 1))
@@ -2019,53 +2236,63 @@ def estraigrafico():
                         df_final_download['y_approx_fourier'] = np.nan
                         df_final_download['y_fit_primary'] = np.nan
 
-                        # --- DEBUG: Visualizza lo stato delle variabili prima dell'uso ---
-                        st.info(f"Stato di st.session_state.cluster_labels all'inizio del download (DF reale): {st.session_state.cluster_labels.shape if isinstance(st.session_state.cluster_labels, np.ndarray) else type(st.session_state.cluster_labels)}")
-                        st.info(f"Stato di st.session_state.temp_y_approx_fourier all'inizio del download (DF reale): {len(st.session_state.temp_y_approx_fourier)} cluster trovati.")
+                        # --- DEBUG: Visualize variable states before raw DataFrame download ---
+                        st.info(
+                            f"State of st.session_state.cluster_labels at download start (raw DF): "
+                            f"{st.session_state.cluster_labels.shape if isinstance(st.session_state.cluster_labels, np.ndarray) else type(st.session_state.cluster_labels)}"
+                        )
+                        st.info(
+                            f"State of st.session_state.temp_y_approx_fourier at download start (raw DF): "
+                            f"{len(st.session_state.temp_y_approx_fourier)} clusters found."
+                        )
                         if st.session_state.temp_y_approx_fourier:
                             for k, v in st.session_state.temp_y_approx_fourier.items():
-                                st.info(f"  Cluster {k} (DF reale): Dati Fourier di tipo {type(v)}, forma {v.shape if isinstance(v, np.ndarray) else 'N/A'}")
+                                st.info(
+                                    f"  Cluster {k} (raw DF): Fourier data type {type(v)}, "
+                                    f"shape {v.shape if isinstance(v, np.ndarray) else 'N/A'}"
+                                )
 
-                        # >>> Gestione di cluster_labels, anche se è un set (per il caso del DF reale) <<<
+                        # >>> Handle cluster_labels even if it’s a set (raw DF case) <<<
                         if isinstance(st.session_state.cluster_labels, set):
                             st.session_state.cluster_labels = np.array(list(st.session_state.cluster_labels))
-                            st.warning("Convertito st.session_state.cluster_labels da set a numpy array (DF reale).")
+                            st.warning("Converted st.session_state.cluster_labels from set to NumPy array (raw DF).")
                         elif isinstance(st.session_state.cluster_labels, list):
                             st.session_state.cluster_labels = np.array(st.session_state.cluster_labels)
+
                         if st.session_state.cluster_labels.ndim > 1:
                             st.session_state.cluster_labels = st.session_state.cluster_labels.flatten()
-                            st.warning("Appiattito st.session_state.cluster_labels a 1D (DF reale).")
+                            st.warning("Flattened st.session_state.cluster_labels to 1D (raw DF).")
 
                         df_final_download['cluster_labels'] = np.full(len(df_final_download), np.nan)
                         if st.session_state.cluster_labels.size > 0:
                             y_val = np.atleast_1d(st.session_state.cluster_labels)
                             min_len = min(len(df_final_download), len(y_val))
-                            df_final_download['cluster_labels'].iloc[:min_len] = y_val[:min_len]
+                            df_final_download.loc[:min_len-1, 'cluster_labels'] = y_val[:min_len]
                         else:
-                            st.warning("st.session_state.cluster_labels è vuoto (DF reale). Colonna 'cluster_labels' riempita con NaN.") 
-                        
+                            st.warning("st.session_state.cluster_labels is empty (raw DF). 'cluster_labels' column filled with NaN.")
 
-                        # --- AGGIUNTA DELLE TRASFORMATE DI FOURIER PER OGNI CLUSTER (temp_y_approx_fourier) ANCHE PER I PUNTI REALI ---
+                        # --- ADD FOURIER TRANSFORMS FOR EACH CLUSTER (temp_y_approx_fourier) FOR RAW POINTS ---
                         if st.session_state.temp_y_approx_fourier:
-                            for cluster_labels, fourier_data in st.session_state.temp_y_approx_fourier.items():
-                                col_name = f'Fourier_Cluster_{cluster_labels}'
-                                
+                            for cid, fourier_data in st.session_state.temp_y_approx_fourier.items():
+                                col_name = f'Fourier_Cluster_{cid}'
                                 if isinstance(fourier_data, list):
                                     fourier_data = np.array(fourier_data)
-                                    st.info(f"Convertito Fourier_Data per Cluster {cluster_labels} da lista a numpy array (DF reale).")
+                                    st.info(f"Converted Fourier data for Cluster {cid} from list to NumPy array (raw DF).")
                                 if fourier_data.ndim > 1:
                                     fourier_data = fourier_data.flatten()
-                                    st.info(f"Appiattito Fourier_Data per Cluster {cluster_labels} a 1D (DF reale).")
+                                    st.info(f"Flattened Fourier data for Cluster {cid} to 1D (raw DF).")
 
                                 df_final_download[col_name] = np.full(len(df_final_download), np.nan)
-                                
                                 if fourier_data.size > 0:
                                     min_len_fourier = min(len(df_final_download), len(fourier_data))
-                                    df_final_download[col_name].iloc[:min_len_fourier] = fourier_data[:min_len_fourier]
+                                    df_final_download.loc[:min_len_fourier-1, col_name] = fourier_data[:min_len_fourier]
                                 else:
-                                    st.warning(f"I dati Fourier per Cluster {cluster_labels} sono vuoti (DF reale). Colonna '{col_name}' riempita con NaN.")
+                                    st.warning(
+                                        f"Fourier data for Cluster {cid} is empty (raw DF). "
+                                        f"Column '{col_name}' filled with NaN."
+                                    )
                         else:
-                            st.info("Nessun dato in st.session_state.temp_y_approx_fourier da aggiungere al DataFrame (DF reale).")
+                            st.info("No Fourier data in st.session_state.temp_y_approx_fourier to add (raw DF).")
 
 
                     # --- AGGIUNTA DEI PARAMETRI SCALARI DALLA SIDEBAR ---
@@ -2105,7 +2332,7 @@ def estraigrafico():
                     df_final_download['Param_Fit_Method_Reg'] = fit_method_Reg
                     df_final_download['Param_Fit_Method_Clust'] = fit_method_Clust
                     df_final_download['Param_N_Color_Clusters'] = N_color_clusters
-                    df_final_download['Param_Window_Size_MA'] = window_size # Per Media Mobile
+                    df_final_download['Param_Window_Size_MA'] = window_size # Per Movie means
                     df_final_download['Param_NN_Hidden_Layers'] = hidden_layers
                     df_final_download['Param_NN_Activation'] = activation
                     df_final_download['Param_NN_Max_Iter'] = max_iter
@@ -2125,136 +2352,206 @@ def estraigrafico():
                     df_final_download['Param_Path_Fit_Type'] = path_fit_type
             
                     
-                    # Il nome dell'immagine verrà incluso nel nome del file per non ripeterlo nel CSV
+                    # The image name will be included in the file name to avoid repetition in the CSV
                     image_base_name = st.session_state.uploaded_file.name.replace('.', '_')
-                    # Mostra il CSV convertito da Excel in Streamlit
-                    st.subheader("Tabella Dati dell Analisi", help="Scorri il DataFrame")           
+                    # Display the Analysis Data Table converted from Excel in Streamlit
+                    st.subheader("Analysis Data Table", help="Scroll through the DataFrame")
                     output = BytesIO()
                     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                        # Crea copia del DataFrame
+                        # Create a copy of the DataFrame
                         df_excel = df_final_download.copy()
 
-                        # Svuota i valori delle colonne dei parametri (tranne la prima riga)
+                        # Clear parameter columns (except the first row)
                         for col in df_excel.columns:
                             if col.startswith("Param_"):
-                                df_excel.loc[1:, col] = ""  # oppure np.nan
+                                df_excel.loc[1:, col] = ""  # or np.nan
 
-                        # Scrivi il foglio Dati
-                        df_excel.to_excel(writer, sheet_name="Dati", index=False)
+                        # Write the Data sheet
+                        df_excel.to_excel(writer, sheet_name="Data", index=False)
 
-                        # Scrivi il foglio Parametri dalla sidebar
+                        # Write the Parameters sheet from the sidebar
                         params = st.session_state.sidebar_params
-                        params_df = pd.DataFrame(params.items(), columns=['Parametro', 'Valore'])
-                        params_df.to_excel(writer, sheet_name="Parametri", index=False)
+                        params_df = pd.DataFrame(params.items(), columns=['Parameter', 'Value'])
+                        params_df.to_excel(writer, sheet_name="Parameters", index=False)
 
-                    # Fine blocco "with"
+                    # End of 'with' block
                     output.seek(0)
                     st.dataframe(df_excel)
-                    # Bottone di download
+                    # Download button for the Excel file
                     st.download_button(
-                        label="Scarica dati Excel",
+                        label="Download Excel Data",
                         data=output,
                         file_name="output.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )  
-                    # Carica il file Excel da BytesIO (senza salvarlo su disco)
-                    output.seek(0)  # Torna all'inizio del buffer
-                    df_from_excel = pd.read_excel(output, sheet_name="Dati")
+                    )
+                    # Load the Excel file from BytesIO (without saving to disk)
+                    output.seek(0)
+                    df_from_excel = pd.read_excel(output, sheet_name="Data")
 
-                    # Converte in CSV
+                    # Convert to CSV
                     csv_from_excel = df_from_excel.to_csv(index=False).encode('utf-8')
 
-                
-                    
-
-                    # Bottone per scaricare il CSV derivato da Excel
+                    # Download button for the CSV derived from Excel
                     st.download_button(
-                        label="Scarica dati CSV",
+                        label="Download CSV Data",
                         data=csv_from_excel,
                         file_name=f"DF_{image_base_name}.csv",
                         mime="text/csv"
-        )
+                    )
 
-            else: # Se st.session_state.df è vuoto o nessun file è stato caricato
-                st.info("Carica un'immagine e processala per estrarre i punti e abilitare il download del database.")
+            else:  # If st.session_state.df is empty or no file has been uploaded
+                st.info("Upload an image and process it to extract points and enable database download.")
 
-
-            # Questo `else` finale è importante per la struttura del tuo script Streamlit
+        # This final `else` is important for the structure of your Streamlit script
         else:
-            st.info("Carica un'immagine  per procedere.")
+            st.info("Upload an image to proceed.")
+
 
     with st.sidebar:
-            st.markdown("---")
-            st.markdown("<h2 style='color: #EB7323;'>Modulo B</h2>", unsafe_allow_html=True)            
-            with st.expander("⚙️ Parametri Classificatore"):                
-                st.subheader("Modello di Addestramento", help="Prova la regressione logistica oppure la rete neurale, intanto  guarda lo scatter plot, varia il numero di neuroni e di layer (ad es 8 oppure 8,9,8 per 3 layer con rispettivamente 8,9,8 neuroni)")
-                model_choice = st.selectbox(
-                        "Scegli un Modello:",
-                        ("Support Vector Machine (SVC)", "Regressione Logistica", "Random Forest","Rete Neurale (MLP)"),
-                        key="model_selector"
-                    )
-        
-                fourier_harmonics_slider = st.slider(
-                        "Numero Armoniche Fourier (per Feature)",
-                        1, 20, 5, 1,
-                        help="Determina quanti coefficienti di Fourier usare per l'estrazione delle feature."
-                    )
-            
-                    # Controlli specifici per SVC
-                if model_choice == "Support Vector Machine (SVC)":
-                        svc_c = st.slider("SVC - Parametro C", 0.1, 10.0, 1.0, 0.1, help="Penalità per gli errori di classificazione.")
-                        svc_kernel = st.selectbox("SVC - Kernel", ("linear", "rbf", "poly"), key="svc_kernel")
-                        st.session_state.model_params = {'C': svc_c, 'kernel': svc_kernel}
-                elif model_choice == "Regressione Logistica":
-                        lr_c = st.slider("LR - Parametro C", 0.1, 10.0, 1.0, 0.1, help="Inverso della forza di regolarizzazione.")
-                        st.session_state.model_params = {'C': lr_c}
-                elif model_choice == "Random Forest":
-                        rf_estimators = st.slider("RF - N° Estimatori", 10, 200, 100, 10, help="Numero di alberi nella foresta.")
-                        rf_max_depth = st.slider("RF - Max Profondità", 2, 20, 10, 1, help="Profondità massima degli alberi.")
-                        st.session_state.model_params = {'n_estimators': rf_estimators, 'max_depth': rf_max_depth}
-                elif model_choice == "Rete Neurale (MLP)":
-                        mlp_hidden_layer_sizes = st.text_input("MLP - Struttura Nodi Nascosti (es: 100 o 50,30)", value="100",
-                                                            help="Numero di neuroni nei layer nascosti, separati da virgola.")
-                        mlp_hidden_layer_sizes = tuple(int(x.strip()) for x in mlp_hidden_layer_sizes.split(",") if x.strip().isdigit())
+        st.markdown("---")
+        st.markdown("<h2 style='color: #EB7323;'>Module B</h2>", unsafe_allow_html=True)            
+        with st.expander("⚙️ Classifier Parameters"):                
+            st.subheader(
+                "Training Model",
+                help=(
+                    "Try Logistic Regression or Neural Network; meanwhile, view the scatter plot, "
+                    "and vary the number of neurons and layers (e.g. 8 or 8,9,8 for 3 layers with "
+                    "8, 9, and 8 neurons respectively)"
+                )
+            )
+            model_choice = st.selectbox(
+                "Choose a Model:",
+                (
+                    "Support Vector Machine (SVC)",
+                    "Logistic Regression",
+                    "Random Forest",
+                    "Neural Network (MLP)"
+                ),
+                key="model_selector"
+            )
 
-                        mlp_activation = st.selectbox("MLP - Funzione di Attivazione", ("relu", "tanh", "logistic"), index=0)
-                        mlp_alpha = st.slider("MLP - Parametro Alpha (regolarizzazione L2)", 0.0001, 0.01, 0.001, 0.0001)
-                        mlp_solver = st.selectbox("MLP - Solver", ("adam", "lbfgs", "sgd"), index=0)
+            fourier_harmonics_slider = st.slider(
+                "Number of Fourier Harmonics (per Feature)",
+                1, 20, 5, 1,
+                help="Determines how many Fourier coefficients to use for feature extraction."
+            )
 
-                        st.session_state.model_params = {
-                            'hidden_layer_sizes': mlp_hidden_layer_sizes,
-                            'activation': mlp_activation,
-                            'alpha': mlp_alpha,
-                            'solver': mlp_solver
-                        }             
-                    # Questo slider è per la fase di "feedback manuale", non per il modello addestrato direttamente.
-                    # Serve come un primo criterio di classificazione prima del vero modello.
-                similarity_threshold_slider = st.slider("Soglia di Similiarità (per feedback iniziale)", 0.0, 1.0, st.session_state.similarity_threshold, 0.01,
-                        help="Soglia usata per classificare le curve come 'uguali o diverse' durante il feedback manuale."
-                    )
-                st.session_state.similarity_threshold = similarity_threshold_slider
-                st.subheader("Analisi Varianza sui punti classificati")
-                show_var_analysis = st.checkbox("Mostra analisi varianza classi/outlier", value=True, key="show_var_analisi")
-                var_outlier_zscore = st.number_input("Soglia z-score per outlier", 1.0, 5.0, 2.5, 0.1, key="var_outlier_zscore")
-                # 2. Checkbox per escludere outlier
-                exclude_outlier = st.checkbox("Escludi Outlier (secondo modello e z-score)", value=False, key="exclude_stat_outlier")
-                st.session_state.exclude_outlier=exclude_outlier
+            # Specific controls for SVC
+            if model_choice == "Support Vector Machine (SVC)":
+                svc_c = st.slider(
+                    "SVC - Parameter C",
+                    0.1, 10.0, 1.0, 0.1,
+                    help="Penalty for classification errors."
+                )
+                svc_kernel = st.selectbox(
+                    "SVC - Kernel",
+                    ("linear", "rbf", "poly"),
+                    key="svc_kernel"
+                )
+                st.session_state.model_params = {'C': svc_c, 'kernel': svc_kernel}
+
+            elif model_choice == "Logistic Regression":
+                lr_c = st.slider(
+                    "LR - Parameter C",
+                    0.1, 10.0, 1.0, 0.1,
+                    help="Inverse of regularization strength."
+                )
+                st.session_state.model_params = {'C': lr_c}
+
+            elif model_choice == "Random Forest":
+                rf_estimators = st.slider(
+                    "RF - Number of Estimators",
+                    10, 200, 100, 10,
+                    help="Number of trees in the forest."
+                )
+                rf_max_depth = st.slider(
+                    "RF - Max Depth",
+                    2, 20, 10, 1,
+                    help="Maximum depth of the trees."
+                )
+                st.session_state.model_params = {
+                    'n_estimators': rf_estimators,
+                    'max_depth': rf_max_depth
+                }
+
+            elif model_choice == "Neural Network (MLP)":
+                mlp_hidden_layer_sizes = st.text_input(
+                    "MLP - Hidden Layer Sizes (e.g., 100 or 50,30)",
+                    value="100",
+                    help="Number of neurons in hidden layers, comma-separated."
+                )
+                mlp_hidden_layer_sizes = tuple(
+                    int(x.strip())
+                    for x in mlp_hidden_layer_sizes.split(",")
+                    if x.strip().isdigit()
+                )
+                mlp_activation = st.selectbox(
+                    "MLP - Activation Function",
+                    ("relu", "tanh", "logistic"),
+                    index=0
+                )
+                mlp_alpha = st.slider(
+                    "MLP - Alpha Parameter (L2 regularization)",
+                    0.0001, 0.01, 0.001, 0.0001
+                )
+                mlp_solver = st.selectbox(
+                    "MLP - Solver",
+                    ("adam", "lbfgs", "sgd"),
+                    index=0
+                )
+                st.session_state.model_params = {
+                    'hidden_layer_sizes': mlp_hidden_layer_sizes,
+                    'activation': mlp_activation,
+                    'alpha': mlp_alpha,
+                    'solver': mlp_solver
+                }
+
+            # This slider is for the "manual feedback" phase, not the trained model.
+            similarity_threshold_slider = st.slider(
+                "Similarity Threshold (for initial feedback)",
+                0.0, 1.0, st.session_state.similarity_threshold, 0.01,
+                help=(
+                    "Threshold used to classify curves as 'same or different' "
+                    "during manual feedback."
+                )
+            )
+            st.session_state.similarity_threshold = similarity_threshold_slider
+
+            st.subheader("Variance Analysis on Classified Points")
+            show_var_analysis = st.checkbox(
+                "Show class/outlier variance analysis",
+                value=True,
+                key="show_var_analisi"
+            )
+            var_outlier_zscore = st.number_input(
+                "Outlier z-score threshold",
+                1.0, 5.0, 2.5, 0.1,
+                key="var_outlier_zscore"
+            )
+            # Checkbox to exclude outliers
+            exclude_outlier = st.checkbox(
+                "Exclude Outliers (by model and z-score)",
+                value=False,
+                key="exclude_stat_outlier"
+            )
+            st.session_state.exclude_outlier = exclude_outlier
+
 
     with tab2:
         st.markdown(tab_labels[1], unsafe_allow_html=True)
         def get_model(model_choice, params):
             if model_choice == "Support Vector Machine (SVC)":
                 return SVC(**params, probability=True)
-            elif model_choice == "Regressione Logistica":
+            elif model_choice == "Logistic Regression":
                 return LogisticRegression(**params)
             elif model_choice == "Random Forest":
                 return RandomForestClassifier(**params)
-            elif model_choice == "Rete Neurale (MLP)":
+            elif model_choice == "Neural Network (MLP)":
                 return MLPClassifier(**params)
             else:
                 return None
 
-        def main_effects_with_var_plot(df, feature_names, class_labels=["Diverse (0)", "Uguali (1)"]):
+        def main_effects_with_var_plot(df, feature_names, class_labels=["Different (0)", "Equal (1)"]):
             n = len(feature_names)
             fig, axs = plt.subplots(n, 1, figsize=(3 + 2.4*len(class_labels), 4*n))
 
@@ -2267,7 +2564,7 @@ def estraigrafico():
 
                 axs[i].set_xticks([])
                 axs[i].set_yticks([])
-                axs[i].set_title(f"Bersaglio: {feat}")
+                axs[i].set_title(f"Target Plot: {feat}")
 
                 # SCALA ADATTIVA: la std più grande -> raggio max visibile (es 0.22)
                 max_std = stds.max() if stds.max() > 0 else 1
@@ -2390,7 +2687,7 @@ def estraigrafico():
             outlier_indices    = st.session_state.get("outlier_indices", [])
 
             if not file_names or len(file_names) != len(y_arr):
-                st.warning("⚠ Non posso costruire la tabella: feedback_file_names e feedback_labels devono avere stessa lunghezza.")
+                st.warning("⚠ Cannot build the table: feedback_file_names and feedback_labels must have the same length.")
                 return
 
             df_summary = pd.DataFrame({
@@ -2399,14 +2696,14 @@ def estraigrafico():
                 "is_outlier":  [i in outlier_indices for i in range(len(y_arr))]
             })
             
-            df_summary["class_name"] = df_summary["class_label"].map({0: "Diverse", 1: "Uguali"})
+            df_summary["class_name"] = df_summary["class_label"].map({0: "Different", 1: "Equal"})
             # --- TABELLONE FINALE (AGGIORNATO SE SI ESCLUDONO OUTLIER) ---
             file_names = st.session_state.get("feedback_file_names", [])
             y_arr      = st.session_state.get("feedback_labels", [])
             outlier_idx    = st.session_state.get("outlier_indices", [])
 
             if not file_names or len(file_names) != len(y_arr):
-                st.warning("⚠ Non posso costruire la tabella: feedback_file_names e feedback_labels devono avere stessa lunghezza.")
+                st.warning("⚠ Cannot build the table: feedback_file_names and feedback_labels must have the same length.")
             else:
                 # Prendi la variabile outlier_idx da session_state (NON crearla locale!)
                 outlier_idx = st.session_state.get('outlier_idx', [])
@@ -2421,11 +2718,11 @@ def estraigrafico():
                     "class_label": np.array(y_arr)[mask],
                     "is_outlier":  [i in outlier_indices for i in range(len(y_arr)) if mask[i]]
                 })        
-                df_summary["class_name"] = df_summary["class_label"].map({0: "Diverse", 1: "Uguali"})
+                df_summary["class_name"] = df_summary["class_label"].map({0: "Different", 1: "Equal"})
             
             st.subheader("🧮🥏 Classi e Outlier secondo il modello di classificazione")
             st.info("""
-                Mostra la lista di tutti i punti caricati, indicando a quale classe appartengono secondo le etichette (ad es. “Diverse” o “Uguali”).
+                Mostra la lista di tutti i punti caricati, indicando a quale classe appartengono secondo le etichette (ad es. “Different” o “Equal”).
                 Per ogni punto è anche indicato se il modello di classificazione lo considera “outlier” (cioè se la previsione del modello non coincide con la classe assegnata).
                 Serve a identificare rapidamente i casi problematici per il modello.
                 """)
@@ -2439,11 +2736,13 @@ def estraigrafico():
 
             if len(features_arr) > 0 and len(labels_arr) == len(features_arr):
                 z_thr = st.session_state.get("var_outlier_zscore", 2.5)
-                st.subheader(f"📊🥏 Outlier statistici (z-score > {z_thr}) per classe")
-                st.info(f"""
-                    Elenco dei punti che risultano “outlier statistici” per almeno una feature, calcolati come punti che hanno uno z-score superiore alla soglia impostata (ad esempio z > {z_thr}) rispetto alla propria classe.
-                    Questa analisi è utile per individuare dati anomali, possibili errori o casi particolari da escludere o analizzare separatamente.
+                st.subheader("🧮🥏 Classes and Outliers according to the classification model")
+                st.info("""
+                    Shows the list of all loaded points, indicating which class they belong to according to the labels (e.g., “Different” or “Equal”).
+                    For each point, it also indicates whether the classification model considers it an “outlier” (i.e., if the model’s prediction does not match the assigned class).
+                    This helps quickly identify problematic cases for the model.
                     """)
+
                 # 1. Individua gli outlier (salvati come indici)
             # outlier_indices = []
                 outlier_descr = []
@@ -2465,12 +2764,14 @@ def estraigrafico():
 
                 if outlier_descr:
                     df_out = pd.DataFrame(outlier_descr)
-                    st.warning(f"**Outlier trovati ({len(df_out)}) tra i punti etichettati.** Puoi regolare la soglia in sidebar.")
+                    st.warning(f"**Outliers found ({len(df_out)}) among the labeled points.** You can adjust the threshold in the sidebar.")
                     st.dataframe(df_out)
                 else:
-                    st.info("Nessun outlier statistico trovato nei dati etichettati (con la soglia corrente).")
+                    st.info("No statistical outliers found among the labeled data (with the current threshold).")
+
                 if len(features_arr) > 0 and len(labels_arr) == len(features_arr):
-                    # ... (già fatto: calcolo outlier_idx ecc)
+                    # ... (already done: calculation of outlier_idx etc)
+
 
                     # --- GRAFICI GAUSSIANI (parola chiave: PLOT_GAUSSIANI) ---
                     # Scegli la feature principale: media su tutte, oppure la 1a/2a feature
@@ -2478,7 +2779,7 @@ def estraigrafico():
                     feature_idx = 0  # oppure scegli tu la feature da visualizzare (es. con uno selectbox)
                     feat_name = st.session_state.all_feature_names[feature_idx] if "all_feature_names" in st.session_state else f"Feature {feature_idx+1}"
 
-                    for lbl, color, name in zip([0,1], ["#E57373", "#64B5F6"], ["Diverse", "Uguali"]):
+                    for lbl, color, name in zip([0,1], ["#E57373", "#64B5F6"], ["Different", "Equal"]):
                         class_feat = features_arr[labels_arr == lbl, feature_idx]
                         if len(class_feat) == 0:
                             continue  # Nessun dato per questa classe
@@ -2503,120 +2804,154 @@ def estraigrafico():
                         ax.axvline(mu+z_thr*sigma, color=color, linestyle="--")
                         ax.axvline(mu-z_thr*sigma, color=color, linestyle="--")
 
-                        ax.set_title(f"{name} – Distribuzione {feat_name}\n(soglia outlier ±{z_thr}σ)")
+                        ax.set_title(f"{name} – Distribution {feat_name}\n(outlier threshold ±{z_thr}σ)")
                         ax.legend()
                         st.pyplot(fig)
                         plt.close(fig)
                 
             else:
-                st.info("Non ci sono ancora abbastanza dati etichettati per calcolare gli outlier statistici.")
+                st.info("Not enough labeled data yet to compute statistical outliers.")
                 exclude_outlier = False
                 outlier_idx = []
 
-            
-            # --- ANALISI VARIANZA FEATURE (dopo la tabella) ---
+            # --- FEATURE VARIANCE ANALYSIS (after table) ---
             if st.session_state.show_var_analisi:
-                st.subheader("📊 Analisi Statistica Feature per Classi")
+                st.subheader("📊 Statistical Feature Analysis by Class")
                 st.info("""
-                    Tabella che riassume le principali statistiche (media, deviazione standard, varianza) calcolate per ciascuna feature, separatamente per ogni classe.
-                    Serve per confrontare a colpo d’occhio come si comportano le diverse feature all’interno delle classi, e identificare subito feature poco variabili o molto diverse tra i gruppi.
+                    Table summarizing key statistics (mean, standard deviation, variance) calculated for each feature, separately by class.
+                    It provides a quick overview of how different features behave within classes, highlighting features with low variability or large differences between groups.
                     """)
 
                 feedback_features = st.session_state.get("feedback_features", [])
-                all_feature_names = st.session_state.get("all_feature_names", [f"F{i+1}" for i in range(len(feedback_features[0]))])
+                all_feature_names = st.session_state.get(
+                    "all_feature_names",
+                    [f"F{i+1}" for i in range(len(feedback_features[0]))]
+                )
                 df_var, outlier_df, df = analisi_varianza_feature_classificati(
-                    feedback_features, y_arr, file_names, all_feature_names, zscore_thr=st.session_state.var_outlier_zscore
-                )                        
+                    feedback_features,
+                    y_arr,
+                    file_names,
+                    all_feature_names,
+                    zscore_thr=st.session_state.var_outlier_zscore
+                )
                 if df_var is not None:
-                    st.write("Statistiche (media, std, var) per ciascuna feature e classe:")
-                    st.dataframe(df_var)            
+                    st.write("Statistics (mean, std, var) for each feature and class:")
+                    st.dataframe(df_var)
                 else:
-                    st.success("Nessun outlier statistico rilevato nelle feature (secondo z-score impostato).")
-            
-            st.subheader("🔬 Analisi ANOVA tra classi per ogni feature")
+                    st.success("No statistical outliers detected in features (based on the current z-score threshold).")
+
+            st.subheader("🔬 ANOVA Analysis Between Classes for Each Feature")
             st.info("""
-            Per ogni feature, viene effettuato un test statistico ANOVA (Analysis of Variance) per verificare se esiste una differenza significativa tra le classi nelle medie delle feature.
-            La colonna p-value indica la significatività: valori piccoli (es. <0.05) suggeriscono che la feature separa bene le classi.
-            Le feature con differenza significativa sono contrassegnate con un segno di spunta.
-            """)
+                For each feature, an ANOVA (Analysis of Variance) test is performed to check if there is a significant difference
+                in feature means between classes. The p-value column indicates significance: small values (e.g., <0.05)
+                suggest that the feature effectively separates classes. Features with significant differences are marked with a check.
+                """)
 
             # Prendi i dati già usati per analisi varianza
             #X = np.array(feature_list), y = np.array(label_list), feature_names = [f"F1",...]
+            # Use the data already used for variance analysis
+            # X = np.array(feature_list), y = np.array(label_list), feature_names = [f"F1", ...]
             if 'feedback_features' in st.session_state and len(st.session_state.feedback_features) > 0:
                 X = np.array(st.session_state.feedback_features)
                 y = np.array(st.session_state.feedback_labels)
-                feature_names = st.session_state.get("all_feature_names", [f"F{i+1}" for i in range(X.shape[1])])
+                feature_names = st.session_state.get(
+                    "all_feature_names",
+                    [f"F{i+1}" for i in range(X.shape[1])]
+                )
 
-                # Assicurati che ci siano almeno due classi e dati sufficienti
+                # Ensure there are at least two classes and matching data
                 if len(np.unique(y)) > 1 and X.shape[0] == len(y):
                     anova_results = []
                     for i, feat in enumerate(feature_names):
                         vals_0 = X[y == 0, i]
                         vals_1 = X[y == 1, i]
-                        # Solo se c’è almeno 1 punto per classe (altrimenti scipy crasha)
+                        # Only if there is at least 1 point per class (otherwise scipy crashes)
                         if len(vals_0) > 1 and len(vals_1) > 1:
                             F, p = f_oneway(vals_0, vals_1)
                             anova_results.append({
                                 "feature": feat,
                                 "F_value": F,
                                 "p_value": p,
-                                "significativo": "✅" if p < 0.05 else ""
+                                "significant": "✅" if p < 0.05 else ""
                             })
                     if anova_results:
                         anova_df = pd.DataFrame(anova_results)
                         st.dataframe(anova_df)
-                        st.info("Le feature con p-value < 0.05 (✅) hanno una differenza significativa tra le classi.")
+                        st.info("Features with p-value < 0.05 (✅) have a significant difference between classes.")
                     else:
-                        st.info("Non ci sono abbastanza dati per il test ANOVA (almeno 2 punti per classe per ogni feature).")
+                        st.info("Not enough data for ANOVA test (need at least 2 points per class for each feature).")
                 else:
-                    st.info("Per il test ANOVA servono almeno 2 classi con almeno 2 punti ciascuna.")
+                    st.info("ANOVA requires at least 2 classes with at least 2 points each.")
             else:
-                st.info("Carica ed etichetta dei dati per eseguire l'analisi ANOVA.")
-                    # ---- PLOT_BOXPLOT_FEATURE ----
+                st.info("Upload and label data to perform ANOVA analysis.")
+
+            # ---- PLOT_BOXPLOT_FEATURE ----
             if "anova_df" in locals() and "df" in locals():
-                # Scegli solo le feature con p-value < 0.05
+                # Select only features with p-value < 0.05
                 sig_feat = anova_df.query("p_value < 0.05")["feature"].tolist()
                 if len(sig_feat) == 0:
-                    st.info("Nessuna feature con differenza significativa tra classi secondo ANOVA.")
+                    st.info("No feature shows a significant class difference according to ANOVA.")
                 else:
-                    st.subheader("🎯 Boxplot & Istogrammi delle feature con ANOVA significativa" )
+                    st.subheader("🎯 Boxplot & Histograms for ANOVA-Significant Features")
                     st.info("""
-                        Per ogni feature che risulta significativa dal test ANOVA (p-value < 0.05), mostra un boxplot che visualizza la distribuzione della feature nelle due classi e un istogramma di confronto.
-                        In questo modo puoi confrontare la forma, la variabilità e la sovrapposizione tra le due distribuzioni di ciascuna feature.
+                        For each feature significant in the ANOVA test (p-value < 0.05), show a boxplot 
+                        of its distribution in the two classes and a comparison histogram.
+                        This lets you compare shape, variability, and overlap between the two distributions.
                         """)
 
-                    # -------- MENU A TENDINA ---------
-                    selected_feat = st.selectbox("Scegli la feature", sig_feat)
+                    # -------- DROPDOWN MENU ---------
+                    selected_feat = st.selectbox("Choose a feature", sig_feat)
                     if selected_feat:
-                        fig, axs = plt.subplots(1, 2, figsize=(10,4))
+                        fig, axs = plt.subplots(1, 2, figsize=(10, 4))
 
                         # --- BOX PLOT
-                        sns.boxplot(data=df, x="label", y=selected_feat, ax=axs[0], palette=["#E57373","#64B5F6"])
-                        axs[0].set_xticklabels(["Diverse (0)", "Uguali (1)"])
-                        axs[0].set_title("Boxplot tra classi")
+                        sns.boxplot(
+                            data=df,
+                            x="label",
+                            y=selected_feat,
+                            ax=axs[0],
+                            palette=["#E57373", "#64B5F6"]
+                        )
+                        axs[0].set_xticklabels(["Different (0)", "Equal (1)"])
+                        axs[0].set_title("Boxplot by Class")
 
                         # --- HISTOGRAM
-                        for lbl, color, name in zip([0,1], ["#E57373", "#64B5F6"], ["Diverse", "Uguali"]):
-                            sns.histplot(df[df["label"]==lbl][selected_feat], bins=15, kde=True, ax=axs[1], color=color, label=name, stat="density", alpha=0.6)
-                        axs[1].set_title("Istogramma per classe")
+                        for lbl, color, name in zip(
+                            [0, 1],
+                            ["#E57373", "#64B5F6"],
+                            ["Different", "Equal"]
+                        ):
+                            sns.histplot(
+                                df[df["label"] == lbl][selected_feat],
+                                bins=15,
+                                kde=True,
+                                ax=axs[1],
+                                color=color,
+                                label=name,
+                                stat="density",
+                                alpha=0.6
+                            )
+                        axs[1].set_title("Histogram by Class")
                         axs[1].legend()
                         st.pyplot(fig)
                         plt.close(fig)
             else:
-                st.info("Serve avere sia la tabella ANOVA che il DataFrame completo con le feature.")
+                st.info("Both the ANOVA table and the full DataFrame with features are required.")
 
-            if len(sig_feat) > 0:            
-                st.subheader(f"🎯 Main Effect + Varianza (bersaglio) per: {selected_feat}" )
+            if len(sig_feat) > 0:
+                st.subheader(f"🎯 Main Effect + Variance (target plot) for: {selected_feat}")
                 st.info("""
-                    Visualizza per la feature selezionata, per ciascuna classe, la media (come punto) e la varianza (come “aureola” attorno al punto).
-                    Così puoi vedere subito quanto si sovrappongono e quanto sono “larghe” le distribuzioni delle diverse classi.
-                    Se le aureole sono ben separate, il p-value ANOVA sarà basso (feature discriminante); se sono molto sovrapposte, il p-value sarà alto.
-                    Questo grafico è utile per capire visivamente il risultato del test ANOVA.
+                    For the selected feature, display for each class the mean (as a point) and the variance 
+                    (as an ‘aureola’ around the point). You can immediately see how much the class distributions 
+                    overlap and how “wide” they are. If the aureolas are well separated, the ANOVA p-value will 
+                    be low (feature is discriminative); if they overlap greatly, the p-value will be high. 
+                    This plot helps visually interpret the ANOVA results.
                     """)
+
 
                 main_effects_with_var_plot(df, [selected_feat])
             else:
-                st.info("Nessuna feature significativa per l'effetto principale.")
+                st.info("No feature is significant for the main effect.")
 
         def normalize_series(series):
                 if series.nunique() <= 1 or series.isnull().all():
@@ -2692,43 +3027,42 @@ def estraigrafico():
                 None: I risultati vengono visualizzati direttamente in Streamlit.
             """
             col1, col2, col3, col4 = st.columns([1,1,1,1])
-            st.subheader("📊 Metriche di Somiglianza tra Curva di Riferimento e Curva di Test")
+            st.subheader("📊 Similarity Metrics Between Reference Curve and Test Curve")
             with col1:
-                # 1. Differenza Media Assoluta
+                # 1. Mean Absolute Difference
                 overall_diff = np.mean(np.abs(aligned_ref_features_series - aligned_test_features_series))
-                st.metric("1. **Differenza Media Assoluta**", f"{overall_diff:.4f}", help="Media delle differenze assolute tra i valori delle feature.")
+                st.metric("1. **Mean Absolute Difference**", f"{overall_diff:.4f}", help="Mean of the absolute differences between feature values.")
             with col2:
-                # 2. Distanza Euclidea
+                # 2. Euclidean Distance
                 euclidean_dist = euclidean(aligned_ref_features_series, aligned_test_features_series)
-                st.metric("2. **Distanza Euclidea**", f"{euclidean_dist:.4f}", help="Distanza 'in linea d'aria' tra i vettori delle feature.")
+                st.metric("2. **Euclidean Distance**", f"{euclidean_dist:.4f}", help="Straight-line distance between the feature vectors.")
             with col3:
-                # 3. Similarità del Coseno
+                # 3. Cosine Similarity
                 ref_norm = np.linalg.norm(aligned_ref_features_series)
                 test_norm = np.linalg.norm(aligned_test_features_series)
                 
-                if ref_norm > 1e-9 and test_norm > 1e-9: # Usiamo una soglia piccola per i numeri floating point
+                if ref_norm > 1e-9 and test_norm > 1e-9:  # Use a small threshold for floating-point values
                     cosine_sim = 1 - cosine(aligned_ref_features_series, aligned_test_features_series)
-                    st.metric("3. **Similarità del Coseno**", f"{cosine_sim:.4f}", help="Misura l'angolo tra i vettori (1 = identici, 0 = ortogonali, -1 = opposti).")
+                    st.metric("3. **Cosine Similarity**", f"{cosine_sim:.4f}", help="Measures the angle between vectors (1 = identical, 0 = orthogonal, -1 = opposite).")
                 else:
-                    st.info("3. Similarità del Coseno: Non calcolabile (uno o entrambi i vettori feature sono prossimi allo zero).")
+                    st.info("3. Cosine Similarity: Not computable (one or both feature vectors are near zero).")
             with col4:
-            # 4. Distanza di Manhattan
+                # 4. Manhattan Distance
                 manhattan_dist = cityblock(aligned_ref_features_series, aligned_test_features_series)
-                st.session_state.manhattan_dist=manhattan_dist
-                st.metric("4. **Distanza di Manhattan**", f"{manhattan_dist:.4f}", help="Somma delle differenze assolute tra i valori delle feature.")
+                st.session_state.manhattan_dist = manhattan_dist
+                st.metric("4. **Manhattan Distance**", f"{manhattan_dist:.4f}", help="Sum of absolute differences between feature values.")
+
 
             
         def train_curve_classifier(folder_path):   
-            
-
-                # 1) Carichiamo tutti i CSV in csv_data come (nome_file, DataFrame)
+            # 1) Load all CSVs into csv_data as (file_name, DataFrame)
             csv_data = []
 
             if isinstance(folder_path, (str, os.PathLike)):
-                # Modalità disco
+                # Disk mode
                 path_str = str(folder_path)
                 if not os.path.isdir(path_str):
-                    st.warning(f"Nessuna cartella trovata: {path_str}")
+                    st.warning(f"No folder found: {path_str}")
                     return
                 for fname in os.listdir(path_str):
                     if fname.lower().endswith('.csv'):
@@ -2737,13 +3071,13 @@ def estraigrafico():
                             df = pd.read_csv(fpath)
                             csv_data.append((fname, df))
                         except Exception as e:
-                            st.error(f"Errore lettura {fname}: {e}")
+                            st.error(f"Error reading {fname}: {e}")
                 if not csv_data:
-                    st.warning(f"Nessun CSV in: {path_str}")
+                    st.warning(f"No CSV files in: {path_str}")
                     return
 
             elif isinstance(folder_path, list):
-                # Modalità browser (UploadedFile)
+                # Browser mode (UploadedFile list)
                 for ufile in folder_path:
                     name = ufile.name
                     try:
@@ -2751,60 +3085,58 @@ def estraigrafico():
                         df = pd.read_csv(io.StringIO(text))
                         csv_data.append((name, df))
                     except Exception as e:
-                        st.error(f"Errore caricamento {name}: {e}")
+                        st.error(f"Error uploading {name}: {e}")
                 if not csv_data:
-                    st.warning("Nessun CSV valido caricato via browser.")
+                    st.warning("No valid CSV uploaded via browser.")
                     return
 
             else:
-                st.error("Parametro non valido: serve path o lista di UploadedFile.")
+                st.error("Invalid parameter: expected a path or list of UploadedFile.")
                 return
 
-            # --- Da qui in poi usi csv_data [(nome, df), …] esattamente come prima ---
-            # Esempio: reset del contatore di rename
+            # --- From here on, use csv_data [(name, df), …] exactly as before ---
+            # Example: reset rename counter
             if 'equal_csv_rename_counter' not in st.session_state:
                 st.session_state.equal_csv_rename_counter = 0
 
-            # Caricamento e normalizzazione
+            # Loading and normalization
             if not st.session_state.processed_dataframes:
-                progress = st.progress(0, text="Caricamento e normalizzazione in corso...")
+                progress = st.progress(0, text="Loading and normalizing...")
                 for i, (file_name, df) in enumerate(csv_data):
                     try:
                         for col in df.columns:
                             if df[col].nunique() > 1 and not df[col].isnull().all():
                                 df[col] = normalize_series(df[col])
                         st.session_state.processed_dataframes[file_name] = df
-                        progress.progress((i + 1) / len(csv_data), text=f"Normalizzato: {file_name}")
+                        progress.progress((i + 1) / len(csv_data), text=f"Normalized: {file_name}")
                     except Exception as e:
-                        st.error(f"Errore normalizzazione di {file_name}: {e}")
+                        st.error(f"Error normalizing {file_name}: {e}")
                 progress.empty()
-                st.success(f"Caricati e normalizzati {len(st.session_state.processed_dataframes)} DataFrame.")
+                st.success(f"Loaded and normalized {len(st.session_state.processed_dataframes)} DataFrames.")
 
-            # --- Popolamento di st.session_state.all_feature_names ---
-            # Raccogli tutti i nomi di feature possibili da tutti i DataFrame processati
+            # --- Populate st.session_state.all_feature_names ---
+            # Collect all possible feature names from processed DataFrames
             temp_all_feature_names = set()
             if st.session_state.processed_dataframes:
                 for df_data in st.session_state.processed_dataframes.values():
-                    # Passa il valore corrente di fourier_harmonics_slider
                     discovered_features = extract_features(df_data, fourier_harmonics=fourier_harmonics_slider)
                     temp_all_feature_names.update(discovered_features.keys())
                 st.session_state.all_feature_names = sorted(list(temp_all_feature_names))
             else:
-                st.session_state.all_feature_names = [] # Nessun dataframe, nessuna feature
+                st.session_state.all_feature_names = []  # No DataFrame, no features
 
-
-            # --- Seleziona Curva di Riferimento ---
+            # --- Select Reference Curve ---
             if st.session_state.reference_curve_name is None and st.session_state.processed_dataframes:
                 st.session_state.reference_curve_name = list(st.session_state.processed_dataframes.keys())[0]
-                st.info(f"Curva di riferimento impostata su: **{st.session_state.reference_curve_name}**")
-            
+                st.info(f"Reference curve set to: **{st.session_state.reference_curve_name}**")
+
             if not st.session_state.reference_curve_name:
-                st.warning("Nessuna curva di riferimento disponibile per l'addestramento.")
+                st.warning("No reference curve available for training.")
                 return
 
             if st.session_state.processed_dataframes:
                 reference_curve_name = st.selectbox(
-                    "Seleziona la curva di riferimento:",
+                    "Select the reference curve:",
                     options=list(st.session_state.processed_dataframes.keys()),
                     index=0 if st.session_state.reference_curve_name is None else
                         list(st.session_state.processed_dataframes.keys()).index(st.session_state.reference_curve_name)
@@ -2814,25 +3146,23 @@ def estraigrafico():
                 reference_df = st.session_state.processed_dataframes[reference_curve_name]
                 ref_features_dict = extract_features(reference_df, fourier_harmonics=fourier_harmonics_slider)
 
-                with st.expander(f"DataFrame iniziale di riferimento: {reference_curve_name}"):
+                with st.expander(f"Reference DataFrame: {reference_curve_name}"):
                     st.dataframe(reference_df.head())
 
                 test_curve_names = [name for name in st.session_state.processed_dataframes.keys() if name != reference_curve_name]
             else:
-                st.warning("Nessuna curva caricata.")
+                st.warning("No curves loaded.")
                 st.stop()
 
-            
             if not test_curve_names:
-                st.info("Non ci sono altre curve da confrontare con quella di riferimento.")
-                # Se non ci sono altre curve, l'addestramento è "completo" in termini di feedback
-                if not st.session_state.model_features_data.empty: # Se ci sono già dati di feedback da un'esecuzione precedente
+                st.info("No other curves to compare to the reference.")
+                if not st.session_state.model_features_data.empty:
                     st.session_state.training_feedback_complete = True
                 return
 
             if st.session_state.current_test_curve_index >= len(test_curve_names):
-                st.info("Hai confrontato tutte le curve disponibili.")
-                st.session_state.current_test_curve_index = 0 
+                st.info("You have compared all available curves.")
+                st.session_state.current_test_curve_index = 0
                 st.session_state.training_feedback_complete = True
 
             if not st.session_state.training_feedback_complete:
@@ -2840,174 +3170,162 @@ def estraigrafico():
                 current_test_df = st.session_state.processed_dataframes[current_test_name]
                 current_test_features_dict = extract_features(current_test_df, fourier_harmonics=fourier_harmonics_slider)
 
-                with st.expander(f"DataFrame corrente: **{current_test_name}** ({st.session_state.current_test_curve_index + 1} di {len(test_curve_names)})"):
+                with st.expander(f"Current DataFrame: **{current_test_name}** ({st.session_state.current_test_curve_index + 1} of {len(test_curve_names)})"):
                     st.dataframe(current_test_df.head())
-                
-                # Calcola una "distanza" o "differenza" tra le feature per il feedback manuale
-                # Per questo, convertiamo i dizionari in Series allineate temporaneamente
+
+                # Compute a “distance” between features for manual feedback
                 aligned_ref_features_series = pd.Series(ref_features_dict).reindex(st.session_state.all_feature_names, fill_value=0)
                 aligned_test_features_series = pd.Series(current_test_features_dict).reindex(st.session_state.all_feature_names, fill_value=0)
                 display_similarity_metrics(aligned_ref_features_series, aligned_test_features_series)
                 overall_diff = np.mean(np.abs(aligned_ref_features_series - aligned_test_features_series))
-                st.metric("Differenza Media tra Feature (per feedback)", f"{overall_diff:.4f}")
-                
-                with st.expander("Info Addestramento manuale"):
-                    st.info("Guarda le due immagini a confronto e decidi se sono uguali attraverso i bottoni. " \
-                    "\nAttenzione se dici che due campioni sono uguali allora il softwaree li rinonima con lo stesso nome, seguito da un numero sequenziale e" \
-                    "il valore i similarità calcolato tra le due immagini")    
-                col_red, col_green = st.columns(2)            
+                st.metric("Feature Mean Difference (for feedback)", f"{overall_diff:.4f}")
+
+                with st.expander("Manual Training Info"):
+                    st.info(
+                        "Compare the two curves and decide if they are Equal using the buttons.\n"
+                        "Note: If you mark them Equal, the software renames them with the same base name plus a sequence number, "
+                        "and records the similarity value between the two curves."
+                    )
+
+                col_red, col_green = st.columns(2)
                 with col_red:
-                    if st.button("🔴 Diverse (NON Uguali)", use_container_width=True):
-                        # Salva il DIZIONARIO delle feature, non la lista, per un allineamento futuro
+                    if st.button("🔴 Different (NOT Equal)", use_container_width=True):
                         st.session_state.model_features_data.loc[len(st.session_state.model_features_data)] = [current_test_features_dict, 0]
                         st.session_state.current_test_curve_index += 1
-                        # --- LOGICA DI RENAME PER "DIVERSE" ---
-                    # Il file rimane con il suo nome originale
-                        st.info(f"Il file '{current_test_name}' rimane con il suo nome originale.")
-                    # --- FINE LOGICA DI RENAME PER "DIVERSE" ---
-                        # quando l’utente classifica current_test_name con label 0 o 1:
+                        st.info(f"File '{current_test_name}' kept with its original name.")
                         st.session_state.feedback_file_names.append(current_test_name)
-                        st.session_state.feedback_labels.append(0)   # o 1 nel caso di “Uguali”
+                        st.session_state.feedback_labels.append(0)
                         st.session_state.feedback_features.append(aligned_test_features_series.values)
                         st.rerun()
-                
+
                 with col_green:
-                    if st.button("🟢 Uguali", use_container_width=True):
-                    # Salva il dizionario delle feature e label 1
+                    if st.button("🟢 Equal", use_container_width=True):
                         st.session_state.model_features_data.loc[len(st.session_state.model_features_data)] = [current_test_features_dict, 1]
                         st.session_state.current_test_curve_index += 1
 
-                        # --- LOGICA DI RENAME IN MEMORIA PER "UGUALI" ---
+                        # --- In-memory rename logic for Equal ---
                         base_name, ext = os.path.splitext(current_test_name)
                         ref_base_name, _ = os.path.splitext(st.session_state.reference_curve_name)
 
                         st.session_state.equal_csv_rename_counter += 1
                         new_file_name = f"{ref_base_name}_{st.session_state.equal_csv_rename_counter}_SimRef.csv"
 
-                    # Aggiorna nome nel dict processed_dataframes
-                    if current_test_name in st.session_state.processed_dataframes:
-                        df_to_update = st.session_state.processed_dataframes.pop(current_test_name)
-                        st.session_state.processed_dataframes[new_file_name] = df_to_update
+                        if current_test_name in st.session_state.processed_dataframes:
+                            df_to_update = st.session_state.processed_dataframes.pop(current_test_name)
+                            st.session_state.processed_dataframes[new_file_name] = df_to_update
 
-                    # Se anche la lista dei file caricati esiste e contiene i nomi, aggiorna anche lì
-                    if "uploaded_csvs" in st.session_state:
-                        # Crea nuova lista sostituendo il nome vecchio con quello nuovo
-                        new_uploaded_csvs = []
-                        for f in st.session_state.uploaded_csvs:
-                            if f.name == current_test_name:
-                                # Cambia solo il nome del file in memoria
-                                f.name = new_file_name
-                            new_uploaded_csvs.append(f)
-                        st.session_state.uploaded_csvs = new_uploaded_csvs
+                        if "uploaded_csvs" in st.session_state:
+                            new_uploaded_csvs = []
+                            for f in st.session_state.uploaded_csvs:
+                                if f.name == current_test_name:
+                                    f.name = new_file_name
+                                new_uploaded_csvs.append(f)
+                            st.session_state.uploaded_csvs = new_uploaded_csvs
 
-                    # Se il file rinominato era anche la curva di riferimento, aggiorna il suo nome
-                    if st.session_state.reference_curve_name == current_test_name:
-                        st.session_state.reference_curve_name = new_file_name
+                        if st.session_state.reference_curve_name == current_test_name:
+                            st.session_state.reference_curve_name = new_file_name
 
-                    st.success(f"Il file '{current_test_name}' è stato rinominato in '{new_file_name}' in memoria.")
-                    # quando l’utente classifica current_test_name con label 0 o 1:
-                    st.session_state.feedback_file_names.append(current_test_name)
-                    st.session_state.feedback_labels.append(1)   # o 1 nel caso di “Uguali”
-                    st.session_state.feedback_features.append(aligned_test_features_series.values)
-                    st.rerun()
-                # --- Visualizzazione del Confronto ---
-                st.write("Visualizzazione del confronto delle curve normalizzate:")
+                        st.success(f"File '{current_test_name}' renamed to '{new_file_name}' in memory.")
+                        st.session_state.feedback_file_names.append(current_test_name)
+                        st.session_state.feedback_labels.append(1)
+                        st.session_state.feedback_features.append(aligned_test_features_series.values)
+                        st.rerun()
+
+                # Show normalized curve comparison
+                st.write("Normalized Curves Comparison:")
                 fig, ax = plt.subplots(figsize=(10, 5))
                 for col in reference_df.columns:
                     if reference_df[col].nunique() > 1 and not reference_df[col].isnull().all():
-                        ax.plot(reference_df.index, reference_df[col], label=f'Riferimento - {col}')
+                        ax.plot(reference_df.index, reference_df[col], label=f'Reference - {col}')
                 for col in current_test_df.columns:
                     if current_test_df[col].nunique() > 1 and not current_test_df[col].isnull().all():
                         ax.plot(current_test_df.index, current_test_df[col], linestyle='--', label=f'Test - {col}')
-                ax.set_title("Confronto Curve Normalizzate")
+                ax.set_title("Normalized Curves Comparison")
                 ax.legend()
                 st.pyplot(fig)
                 plt.close(fig)
 
-            else: 
-                st.success("Tutte le curve sono state valutate! Procedi con l'addestramento del modello.")
-                
-            if st.session_state.model_features_data.empty:
-                st.info("Valuta almeno una curva per iniziare l'addestramento del modello.")
-                return 
-                
-            # Addestra anche con i dati di riferimento (label 1) se non è già incluso esplicitamente
-            if 'ref_features_added' not in st.session_state or not st.session_state.ref_features_added:
-                # Aggiungi il dizionario delle feature della curva di riferimento
-                # Controlla se il dizionario è già presente (potrebbe essere più complesso da fare con dizionari)
-                # Per semplicità, aggiungiamo e impostiamo il flag per non aggiungerlo più.
-                # Se i dati di riferimento sono sempre i primi, questo controllo va bene.
-                st.session_state.model_features_data.loc[len(st.session_state.model_features_data)] = [ref_features_dict, 1]
-                st.session_state.ref_features_added = True 
+            else:
+                st.success("All curves have been evaluated! Proceed to train the model.")
 
-            # --- ALLINEAMENTO DELLE FEATURE PRIMA DI np.array(X) ---
+            if st.session_state.model_features_data.empty:
+                st.info("Label at least one curve to start training the model.")
+                return
+
+            # Add reference curve features (label 1) if not already added
+            if 'ref_features_added' not in st.session_state or not st.session_state.ref_features_added:
+                st.session_state.model_features_data.loc[len(st.session_state.model_features_data)] = [ref_features_dict, 1]
+                st.session_state.ref_features_added = True
+
+            # --- Align features before np.array(X) ---
             aligned_X_data = []
-            if not st.session_state.all_feature_names: 
-                st.error("Nomi delle feature non disponibili per l'allineamento. Assicurati che siano state estratte.")
-                return 
+            if not st.session_state.all_feature_names:
+                st.error("Feature names not available for alignment. Make sure they have been extracted.")
+                return
 
             for feature_dict in st.session_state.model_features_data['features']:
-                # Converti il dizionario di feature in una Series e riallinea
                 aligned_series = pd.Series(feature_dict).reindex(st.session_state.all_feature_names, fill_value=0)
-                aligned_X_data.append(aligned_series.values) # Prendi i valori dell'array
+                aligned_X_data.append(aligned_series.values)
 
-            X = np.array(aligned_X_data) # Ora X dovrebbe avere una forma omogenea
-            y = st.session_state.model_features_data['label'].values
-            y = y.astype(int) 
-            # Assicurati che ci siano almeno due classi e dati sufficienti
+            X = np.array(aligned_X_data)
+            y = st.session_state.model_features_data['label'].values.astype(int)
+
+            # Ensure at least two classes and enough samples
             if len(np.unique(y)) < 2:
-                st.warning("Necessario feedback per almeno due classi (Uguali e Diverse) per addestrare un classificatore.")
+                st.warning("Need feedback for at least two classes (Equal and Different) to train a classifier.")
                 return
             if len(X) < 2:
-                st.warning("Necessari almeno due campioni per addestrare il modello.")
+                st.warning("Need at least two samples to train the model.")
                 return
 
-            if st.button("Addestra Modello", type="primary"):
+            if st.button("Train Model", type="primary"):
                 try:
-                    st.info(f"Addestrando il modello: {model_choice}...")
+                    st.info(f"Training model: {model_choice}...")
 
                     if model_choice == "Support Vector Machine (SVC)":
                         model = SVC(random_state=42, **st.session_state.model_params)
-                    elif model_choice == "Regressione Logistica":
+                    elif model_choice == "Logistic Regression":
                         model = LogisticRegression(random_state=42, **st.session_state.model_params)
                     elif model_choice == "Random Forest":
                         model = RandomForestClassifier(random_state=42, **st.session_state.model_params)
-                    elif model_choice == "Rete Neurale (MLP)":                        
+                    elif model_choice == "Neural Network (MLP)":
                         model = MLPClassifier(random_state=42, max_iter=1000, **st.session_state.model_params)
-                    # Split per validazione (opzionale ma consigliato per valutazione più realistica)
+
+                    # Optional train/test split for realistic evaluation
                     if len(X) > 1 and len(np.unique(y)) > 1:
                         try:
-                            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
-                        except ValueError: 
-                            st.warning("Dati insufficienti per lo split di addestramento/test. Addestramento su tutti i dati disponibili.")
+                            X_train, X_test, y_train, y_test = train_test_split(
+                                X, y, test_size=0.2, random_state=42, stratify=y
+                            )
+                        except ValueError:
+                            st.warning("Insufficient data for train/test split. Using all data for training.")
                             X_train, y_train = X, y
-                            X_test, y_test = X, y 
-                    else: 
+                            X_test, y_test = X, y
+                    else:
                         X_train, y_train = X, y
                         X_test, y_test = X, y
 
-                
                     model.fit(X_train, y_train)
                     st.session_state.trained_model = model
 
-                    # Valutazione del modello
+                    # Model evaluation
                     y_pred = model.predict(X_test)
                     report = {
-                        "accuratezza": accuracy_score(y_test, y_pred),
-                        "precisione": precision_score(y_test, y_pred, zero_division=0),
+                        "accuracy": accuracy_score(y_test, y_pred),
+                        "precision": precision_score(y_test, y_pred, zero_division=0),
                         "recall": recall_score(y_test, y_pred, zero_division=0),
                         "f1_score": f1_score(y_test, y_pred, zero_division=0),
-                        "matrice_confusione": confusion_matrix(y_test, y_pred).tolist()
+                        "confusion_matrix": confusion_matrix(y_test, y_pred).tolist()
                     }
                     st.session_state.model_report = report
-                    
-                    st.success("Modello addestrato con successo!")
+
+                    st.success("Model trained successfully!")
                     st.json(report)
 
-                    # Mostra feature importances per Random Forest
+                    # Show feature importances for Random Forest
                     if model_choice == "Random Forest" and hasattr(model, 'feature_importances_'):
-                        st.subheader("Importanza delle Feature (Random Forest)")
-                        feature_names = st.session_state.all_feature_names 
+                        st.subheader("Feature Importances (Random Forest)")
+                        feature_names = st.session_state.all_feature_names
                         if len(feature_names) == len(model.feature_importances_):
                             importance_df = pd.DataFrame({
                                 'Feature': feature_names,
@@ -3020,28 +3338,26 @@ def estraigrafico():
                             st.pyplot(fig_imp)
                             plt.close(fig_imp)
                         else:
-                            st.warning("Impossibile mostrare feature importances: numero di feature non corrispondente.")
+                            st.warning("Cannot display feature importances: feature count mismatch.")
 
                 except Exception as e:
-                    st.error(f"Errore durante l'addestramento del modello: {e}")
+                    st.error(f"Error training model: {e}")
                     st.session_state.trained_model = None
                     st.session_state.model_report = None
-            
-            # Questa sezione si esegue solo se un modello è stato addestrato
+
+            # Section runs only if a model has been trained
             if st.session_state.trained_model is not None:
-                st.subheader("Modello Addestrato e Report")
+                st.subheader("Trained Model and Report")
                 if st.session_state.model_report:
                     st.json(st.session_state.model_report)
-                
-                # --- Sezione di Esportazione del Modello ---
-                st.subheader("Esporta Modello e Parametri")
-                
-                model_filename = f"{model_choice.replace(' ', '_').replace('(', '').replace(')', '')}_trained_model.joblib"           
-                
-                joblib_buffer = pickle.dumps(st.session_state.trained_model)
 
+                # --- Export Model and Parameters ---
+                st.subheader("Export Model and Parameters")
+
+                model_filename = f"{model_choice.replace(' ', '_').replace('(', '').replace(')', '')}_trained_model.joblib"
+                joblib_buffer = pickle.dumps(st.session_state.trained_model)
                 st.download_button(
-                    label="Scarica Modello Addestrato (.joblib)",
+                    label="Download Trained Model (.joblib)",
                     data=joblib_buffer,
                     file_name=model_filename,
                     mime="application/octet-stream"
@@ -3049,7 +3365,7 @@ def estraigrafico():
 
                 report_json_filename = f"{model_choice.replace(' ', '_').replace('(', '').replace(')', '')}_report.json"
                 st.download_button(
-                    label="Scarica Report Modello (JSON)",
+                    label="Download Model Report (JSON)",
                     data=json.dumps(st.session_state.model_report, indent=2),
                     file_name=report_json_filename,
                     mime="application/json"
@@ -3060,21 +3376,20 @@ def estraigrafico():
                     "model_choice": model_choice,
                     "model_parameters": st.session_state.model_params,
                     "fourier_harmonics": fourier_harmonics_slider,
-                    "feature_names": st.session_state.all_feature_names 
+                    "feature_names": st.session_state.all_feature_names
                 }
                 st.download_button(
-                    label="Scarica Parametri di Addestramento (JSON)",
+                    label="Download Training Parameters (JSON)",
                     data=json.dumps(export_params, indent=2),
                     file_name=training_params_json_filename,
                     mime="application/json"
                 )
 
             else:
-                st.info("Addestra il modello per poterlo esportare.")
+                st.info("Train the model to enable export.")
 
-            
-            # Resetta addestramento - Questo pulsante dovrebbe essere dopo la visualizzazione
-            if st.button("Resetta Addestramento e Dati di Feedback"):
+            # Reset training and feedback data
+            if st.button("Reset Training and Feedback Data"):
                 st.session_state.processed_dataframes = {}
                 st.session_state.reference_curve_name = None
                 st.session_state.current_test_curve_index = 0
@@ -3084,125 +3399,133 @@ def estraigrafico():
                 st.session_state.model_report = None
                 if 'ref_features_added' in st.session_state:
                     del st.session_state.ref_features_added
-                st.info("Addestramento e feedback resettati. Ricarica la pagina per ricominciare.")
-                st.rerun()     
+                st.info("Training and feedback reset. Reload the page to start over.")
+                st.rerun()
+        
             
             # Inizializza il path solo una volta
         if "folder_path" not in st.session_state:
             st.session_state.folder_path = "C:/Users/mdirienzo/Desktop/Mirco/addestramento cane"
 
-        with st.expander("ℹ️ Info"):
-            st.write("Modulo B: Addestra un modello dai dataframe CSV scegliendo tra vari metodi di addestramento nei menu box della *SIDEBAR Modulo B* e modifica i parametri con gli slider. " \
-            "\n- Carica tutti dataframe-csv in una volta con una multiselezione dal Browser(creati nel *ModuloA* oppure esterni)" \
-            "\n- Ogni file fa riferimento ad un campione (ad un immagine), viene normalizzata e confrontato agli altri, il primo modello è di riferimento." \
-            "\n - Ogni volta che l'utente digita uguale o diverso il modello viene addestrato. " \
-            "\n - Fittando gli scatterplot dei vari metodi si osserva in due dimensioni quale modello di addestramento si presta meglio ai dati" \
-            "\n - Esporta il modello addestrato")
+    with st.expander("ℹ️ Info"):
+        st.write(
+            "Module B: Train a model from CSV dataframes by choosing among various training methods in the *SIDEBAR Module B* menus and adjusting parameters with sliders.\n"
+            "- Load all CSV dataframes at once via multi-select in the Browser (created in *ModuleA* or external).\n"
+            "- Each file corresponds to one sample (one image), is normalized and compared to the others; the first is the reference model.\n"
+            "- Each time the user labels a pair as equal or different, the model is retrained.\n"
+            "- By fitting scatter plots of various methods you can see in 2D which training model suits the data best.\n"
+            "- Export the trained model."
+        )
 
-        with st.expander("📁 Selezione file CSV input"):
-            st.info("Inserisci i file CSV che vuoi usare per l'addestramento")
-            uploaded_files = st.file_uploader(
-                label="Seleziona uno o più file CSV",
-                type="csv",
-                accept_multiple_files=True
-            )
-            # --- DOPO FILE UPLOADER, salva una copia originale ---
-            if uploaded_files:
-                if "original_dataframes" not in st.session_state or not st.session_state.original_dataframes:
-                    st.session_state.original_dataframes = {}
-                    for ufile in uploaded_files:
-                        # leggi il file csv
-                        df = pd.read_csv(ufile)
-                        st.session_state.original_dataframes[ufile.name] = df.copy()
-            if uploaded_files:
-                # Salviamo in session_state la lista di file caricati (oggetti UploadedFile)
-                st.session_state.uploaded_csvs = uploaded_files
-                # E salviamo separatamente la lista dei loro nomi
-                st.session_state.file_names_list = [f.name for f in uploaded_files]
-
-                st.success(f"✅ Caricati {len(uploaded_files)} file CSV!")
-            else:
-                st.info("📌 Nessun file caricato")
-        # Visualizziamo la lista dei file caricati sotto l'expander
-        if "uploaded_csvs" in st.session_state and st.session_state.uploaded_csvs:
-            file_names = [f.name for f in st.session_state.uploaded_csvs]
-            
-
-        # --- 4. CALL THE FUNCTION HERE ---
-        # Passiamo la lista di file caricati alla funzione
-        if "uploaded_csvs" in st.session_state and st.session_state.uploaded_csvs:
-            train_curve_classifier(st.session_state.uploaded_csvs)
-            if not st.session_state.model_features_data.empty:
-                aligned_X_data = []
-                for feature_dict in st.session_state.model_features_data['features']:
-                    aligned_series = pd.Series(feature_dict).reindex(
-                        st.session_state.all_feature_names, fill_value=0
-                    )
-                    aligned_X_data.append(aligned_series.values)
-                X = np.array(aligned_X_data)
-                y = st.session_state.model_features_data['label'].values.astype(int)
-
-                model = get_model(model_choice, st.session_state.model_params)
-                pca = PCA(n_components=2)
-                X_pca = pca.fit_transform(X)
-
-                # --- Calcolo outlier statistici e salvo in session_state ---
-                z_thr = st.session_state.get("var_outlier_zscore", 2.5)
-                outlier_idx = []
-                for lbl in [0, 1]:
-                    mask = (y == lbl)
-                    if mask.sum() > 0:
-                        class_feat = X[mask]
-                        z_scores = np.abs(zscore(class_feat, axis=0, nan_policy='omit'))
-                        max_z = np.nanmax(z_scores, axis=1)
-                        idx_this_class = np.where(mask)[0]
-                        class_outlier_idx = idx_this_class[max_z > z_thr]
-                        outlier_idx.extend(class_outlier_idx.tolist())
-                st.session_state['outlier_idx'] = outlier_idx   # <-- salva qui
-
-                # --- Addestra modello e plot ---
-                model.fit(X_pca, y)
-                plot_decision_boundary(model, X_pca, y)
-            else:
-                st.info("Valuta alcune curve e addestra il modello per visualizzare il confine decisionale.")
-            
+    with st.expander("📁 Input CSV File Selection"):
+        st.info("Upload the CSV files you want to use for training")
+        uploaded_files = st.file_uploader(
+            label="Select one or more CSV files",
+            type="csv",
+            accept_multiple_files=True
+        )
+        # --- AFTER FILE UPLOADER, save an original copy ---
+        if uploaded_files:
+            if "original_dataframes" not in st.session_state or not st.session_state.original_dataframes:
+                st.session_state.original_dataframes = {}
+                for ufile in uploaded_files:
+                    df = pd.read_csv(ufile)
+                    st.session_state.original_dataframes[ufile.name] = df.copy()
+        if uploaded_files:
+            # Store the UploadedFile objects
+            st.session_state.uploaded_csvs = uploaded_files
+            # Also store their names separately
+            st.session_state.file_names_list = [f.name for f in uploaded_files]
+            st.success(f"✅ Loaded {len(uploaded_files)} CSV files!")
         else:
-            st.info("Carica almeno un file CSV per iniziare l'addestramento.")
+            st.info("📌 No files uploaded")
+
+    # Display the list of uploaded files under the expander
+    if "uploaded_csvs" in st.session_state and st.session_state.uploaded_csvs:
+        file_names = [f.name for f in st.session_state.uploaded_csvs]
+
+    # --- 4. CALL THE FUNCTION HERE ---
+    # Pass the list of uploaded files to the function
+    if "uploaded_csvs" in st.session_state and st.session_state.uploaded_csvs:
+        train_curve_classifier(st.session_state.uploaded_csvs)
+        if not st.session_state.model_features_data.empty:
+            aligned_X_data = []
+            for feature_dict in st.session_state.model_features_data['features']:
+                aligned_series = pd.Series(feature_dict).reindex(
+                    st.session_state.all_feature_names, fill_value=0
+                )
+                aligned_X_data.append(aligned_series.values)
+            X = np.array(aligned_X_data)
+            y = st.session_state.model_features_data['label'].values.astype(int)
+
+            model = get_model(model_choice, st.session_state.model_params)
+            pca = PCA(n_components=2)
+            X_pca = pca.fit_transform(X)
+
+            # --- Compute statistical outliers and save to session_state ---
+            z_thr = st.session_state.get("var_outlier_zscore", 2.5)
+            outlier_idx = []
+            for lbl in [0, 1]:
+                mask = (y == lbl)
+                if mask.sum() > 0:
+                    class_feat = X[mask]
+                    z_scores = np.abs(zscore(class_feat, axis=0, nan_policy='omit'))
+                    max_z = np.nanmax(z_scores, axis=1)
+                    idx_this_class = np.where(mask)[0]
+                    class_outlier_idx = idx_this_class[max_z > z_thr]
+                    outlier_idx.extend(class_outlier_idx.tolist())
+            st.session_state['outlier_idx'] = outlier_idx  # <-- save here
+
+            # --- Train model and plot decision boundary ---
+            model.fit(X_pca, y)
+            plot_decision_boundary(model, X_pca, y)
+        else:
+            st.info("Label some curves and train the model to view the decision boundary.")
+    else:
+        st.info("Upload at least one CSV file to start training.")
 
     with tab3:
-        st.markdown(tab_labels[2], unsafe_allow_html=True) 
-        with st.expander("Carica csv parametri"):
-            st.info("Premesso che dal *Modulo A* hai creato almeno un DataFrame(DF) che contiene anche i parametri della SIDEBAR utilizzati per l'analisi, puoi caricare in questo modulo il DF per impostare i parametri e" \
-            "svolgere nuove analisi su immagini caricate in serie.")
-            file_csv = st.file_uploader("Carica un file CSV", type="csv", key="csv_modulo_c")
+        st.markdown(tab_labels[2], unsafe_allow_html=True)
+        with st.expander("Upload Parameters CSV"):
+            st.info(
+                "Assuming you have created at least one DataFrame (DF) in *Module A* that includes the SIDEBAR parameters used for analysis, "
+                "you can upload that sample DF here to set parameters and perform new analyses on images in batch."
+            )
+            file_csv = st.file_uploader("Upload a CSV file", type="csv", key="csv_Module_c")
             if file_csv is not None:
-                if st.button("Applica Parametri (salva per sidebar)"):
+                if st.button("Apply Parameters (save for sidebar)"):
                     st.session_state.pending_params_file_bytes = file_csv.getvalue()
-                    st.success("File pronto, verrà applicato dalla sidebar!")  
+                    st.success("File ready—will be applied via the sidebar!")
                     st.rerun()
 
         st.divider()
-        with st.expander("Carica immagini"):
-            st.info("Carica più immagini per svolgere le analisi su ognuna in automatico, utilizzando i parametri della sidebar impostati tramite un il csv campione che carichi nel browser sopra. " \
-            "\n Scarica i DataFrame csv delle immagini analizzatei in una cartella zip")
+        with st.expander("Upload Images"):
+            st.info(
+                "Upload multiple images to automatically analyze each one using the sidebar parameters "
+                "set via the sample CSV you uploaded above.\n"
+                "Download the resulting image analysis DataFrames as a zipped folder."
+            )
             uploaded_images = st.file_uploader(
-                "Carica immagini (PNG, JPG, JPEG) — multiplo o zip",
+                "Upload images (PNG, JPG, JPEG) — multiple or zip",
                 type=["png", "jpg", "jpeg", "zip"],
                 accept_multiple_files=True,
                 key="multi_img_upload"
             )
-            uploaded_zip = st.file_uploader("oppure ZIP di immagini", type=["zip"], key="batch_zip")
+            uploaded_zip = st.file_uploader("or ZIP of images", type=["zip"], key="batch_zip")
             anteprime_imgs = []
             anteprime_names = []
 
-            if st.button("Esegui Batch su tutte le immagini"):
+            if st.button("Run Batch on All Images"):
                 if not uploaded_images and not uploaded_zip:
-                    st.error("Carica immagini (o uno ZIP) prima di lanciare il batch!")
+                    st.error("Upload images (or a ZIP) before running the batch!")
                 else:
-                    # --- Prendi sempre i parametri dalla sidebar ---
+                    # --- Always use the sidebar parameters ---
                     params = st.session_state.sidebar_params.copy()
-                    st.info("🟢 Parametri batch presi dalla sidebar attuale. "
-                            "Se vuoi cambiare i parametri, modificali nella sidebar o carica un CSV parametri prima.")
+                    st.info(
+                        "🟢 Batch parameters taken from the current sidebar. "
+                        "To change them, adjust the sidebar or upload a parameters CSV first."
+                    )
+
 
                     # --- Colleziona immagini ---
                     images_to_process = []
@@ -3215,7 +3538,7 @@ def estraigrafico():
                                     buf = BytesIO(z.read(name))
                                     buf.name = name
                                     images_to_process.append(buf)                                
-                    st.info(f"Trovate {len(images_to_process)} immagini da processare.")
+                    st.info(f"Found {len(images_to_process)} image to process.")
 
                     # --- Buffer ZIP risultati ---
                     zip_buffer = BytesIO()
@@ -3256,18 +3579,18 @@ def estraigrafico():
                                 zip_out.writestr(f"{image_base_name}_risultato.csv", csv_buf.read())
 
                             except Exception as e:
-                                st.warning(f"Errore elaborazione immagine {img_stream.name}: {e}")
+                                st.warning(f"Image elaboration error {img_stream.name}: {e}")
 
-                    st.success("Batch concluso!")
+                    st.success("Batch finish!")
                     zip_buffer.seek(0)
                     st.download_button(
-                        "Scarica tutti i risultati in ZIP",
+                        "Download result into ZIP format",
                         data=zip_buffer.getvalue(),
                         file_name="batch_risultati.zip",
                         mime="application/zip"
                     )
                 if anteprime_imgs:  # Se ci sono immagini elaborate
-                    st.subheader("📸 Anteprima immagini elaborate")
+                    st.subheader("📸 Elaborated Images Preview")
                     ncols = 4
                     rows = (len(anteprime_imgs) + ncols - 1) // ncols
                     for i in range(rows):
@@ -3280,51 +3603,50 @@ def estraigrafico():
                                             caption=anteprime_names[idx], 
                                             use_container_width=True)
         st.divider()
-        with st.expander("📂 Continua addestramento modello esistente da ZIP di CSV"):
+        with st.expander("📂 Continue training existing model from CSV ZIP"):
             zip_csv_file = st.file_uploader(
-                "Carica ZIP di file CSV",
+                "Upload ZIP of CSV files",
                 type="zip",
                 key="zip_csv_tab3"
             )
             col1, col2 = st.columns(2)
             with col1:
                 model_file = st.file_uploader(
-                    "Modello addestrato (.joblib/.pkl)",
-                    type=["joblib","pkl"],
+                    "Trained model (.joblib/.pkl)",
+                    type=["joblib", "pkl"],
                     key="load_model_tab3"
                 )
             with col2:
                 params_file = st.file_uploader(
-                    "Parametri modello (.json)",
+                    "Model parameters (.json)",
                     type=["json"],
                     key="load_params_tab3"
                 )
 
             snippet = st.text_input(
-                "Testo da cercare nel nome del CSV → label = 1",
-                help="Etichetta 1 se compare, 0 altrimenti."
+                "Text snippet to search in CSV filename → label = 1",
+                help="Assigns label 1 if snippet is found, otherwise 0."
             )
 
             if zip_csv_file and model_file and params_file and snippet:
                 try:
-                    # 🔹 Carica file parametri
+                    # 🔹 Load parameters file
                     params_file.seek(0)
                     raw_params = params_file.read()
-                    st.write(f"Primi byte del file parametri: {raw_params[:20]}")
+                    st.write(f"First bytes of parameters file: {raw_params[:20]}")
                     params = json.load(io.BytesIO(raw_params))
 
                     feature_names = params.get("feature_names", [])
                     fourier_harm = params.get("fourier_harmonics", None)
 
-                    # 🔹 Carica modello
+                    # 🔹 Load model
                     raw_model = model_file.read()
-                    model = None
                     try:
                         model = joblib.load(BytesIO(raw_model))
                     except Exception:
                         model = pickle.loads(raw_model)
 
-                    # 🔹 Carica e processa ZIP
+                    # 🔹 Unzip and process CSV files
                     zip_data = zip_csv_file.read()
                     temp_dir = tempfile.mkdtemp()
                     with zipfile.ZipFile(BytesIO(zip_data)) as z:
@@ -3340,16 +3662,17 @@ def estraigrafico():
                                 except UnicodeDecodeError:
                                     df = pd.read_csv(file_path, encoding='latin1')
                                 except Exception as e:
-                                    st.warning(f"⚠ Impossibile leggere {file}: {e}")
+                                    st.warning(f"⚠ Unable to read {file}: {e}")
                                     continue
                                 csv_streams.append((file, df))
 
                     if not csv_streams:
-                        st.error("❌ Nessun CSV valido nel ZIP.")
+                        st.error("❌ No valid CSV found in ZIP.")
                         st.stop()
 
                     X_list, y_list = [], []
                     for name, df in csv_streams:
+                        # Normalize each numeric column
                         for col in df.columns:
                             if df[col].nunique() > 1 and not df[col].isnull().all():
                                 df[col] = normalize_series(df[col])
@@ -3363,20 +3686,22 @@ def estraigrafico():
                     y = np.array(y_list)
 
                     if len(np.unique(y)) < 2:
-                        st.error("Serve almeno un CSV etichettato 0 e uno etichettato 1.")
+                        st.error("At least one CSV must be labeled 0 and one labeled 1.")
                         st.stop()
 
                     X_pca = PCA(n_components=2).fit_transform(X)
                     model.fit(X_pca, y)
-                    st.success("✔️ Modello aggiornato!")
+                    st.success("✔️ Model updated successfully!")
                     st.session_state.feedback_file_names = [name for name, df in csv_streams]
                     st.session_state.feedback_labels = y.tolist()
                     st.session_state.feedback_features = X.tolist()
-                    # Se hai bisogno dei nomi feature:
+                    # Update feature names if provided
                     if feature_names:
                         st.session_state.all_feature_names = feature_names
                     else:
                         st.session_state.all_feature_names = [f"F{i+1}" for i in range(X.shape[1])]
+
+                    # Recompute outliers
                     z_thr = st.session_state.get("var_outlier_zscore", 2.5)
                     outlier_idx = []
                     for lbl in [0, 1]:
@@ -3385,62 +3710,64 @@ def estraigrafico():
                             class_feat = X[mask]
                             z_scores = np.abs(zscore(class_feat, axis=0, nan_policy='omit'))
                             max_z = np.nanmax(z_scores, axis=1)
-                            idx_this_class = np.where(mask)[0]
-                            class_outlier_idx = idx_this_class[max_z > z_thr]
-                            outlier_idx.extend(class_outlier_idx.tolist())
-                    st.session_state['outlier_idx'] = outlier_idx 
+                            idxs = np.where(mask)[0]
+                            outlier_idx.extend(idxs[max_z > z_thr].tolist())
+                    st.session_state['outlier_idx'] = outlier_idx
+
                     plot_decision_boundary(model, X_pca, y)
 
+                    # Offer updated model for download
                     out_buf = BytesIO()
                     pickle.dump(model, out_buf)
                     out_buf.seek(0)
                     st.download_button(
-                        "Scarica modello aggiornato (.joblib)",
+                        "Download updated model (.joblib)",
                         data=out_buf,
-                        file_name="model_continuato.joblib",
+                        file_name="model_updated.joblib",
                         mime="application/octet-stream"
                     )
 
                 except Exception as e:
-                    st.error(f"Errore retraining: {e}")
+                    st.error(f"Retraining error: {e}")
             else:
-                st.info("Carica ZIP, modello, JSON e inserisci frammento per avviare.")
+                st.info("Upload ZIP, model, JSON and enter snippet to start retraining.")
+
         st.divider()
-        with st.expander("🤖 Classifica i risultati batch con un modello già addestrato"):
+
+        with st.expander("🤖 Classify batch results with a pre-trained model"):
             st.info(
-                "Applica il tuo modello già addestrato (.joblib/.pkl + parametri .json) "
-                "ai CSV generati dal batch immagini."
+                "Apply your already trained model (.joblib/.pkl + .json parameters) "
+                "to the CSVs generated by the image batch."
             )
 
-            # --- Uploader ---
             col1, col2 = st.columns(2)
             with col1:
                 pred_model_file = st.file_uploader(
-                    "Modello addestrato (.joblib/.pkl)", type=["joblib", "pkl"], key="pred_model_tab3"
+                    "Trained model (.joblib/.pkl)", type=["joblib", "pkl"], key="pred_model_tab3"
                 )
             with col2:
                 pred_params_file = st.file_uploader(
-                    "Parametri modello (.json)", type=["json"], key="pred_params_tab3"
+                    "Model parameters (.json)", type=["json"], key="pred_params_tab3"
                 )
             uploaded_csv_zip = st.file_uploader(
-                "ZIP dei CSV risultati batch immagini", type="zip", key="csv_pred_zip_tab3"
+                "ZIP of batch result CSVs", type="zip", key="csv_pred_zip_tab3"
             )
 
             if not (pred_model_file and pred_params_file and uploaded_csv_zip):
-                st.info("Carica modello, parametri e ZIP dei CSV per procedere.")
+                st.info("Upload model, parameters, and ZIP of CSVs to proceed.")
                 st.stop()
 
-            # --- Carico modello e parametri ---
+            # Load model and parameters
             params = json.load(io.BytesIO(pred_params_file.read()))
-            feature_names  = params.get("feature_names", [])
-            fourier_harm   = params.get("fourier_harmonics")
+            feature_names = params.get("feature_names", [])
+            fourier_harm = params.get("fourier_harmonics")
             raw = pred_model_file.read()
             try:
                 model = joblib.load(BytesIO(raw))
             except:
                 model = pickle.loads(raw)
 
-            # --- Estrazione feature e predict batch ---
+            # Extract features and predict
             tmp = tempfile.mkdtemp()
             with zipfile.ZipFile(uploaded_csv_zip) as z:
                 z.extractall(tmp)
@@ -3454,15 +3781,15 @@ def estraigrafico():
                     for c in df.columns:
                         if df[c].nunique() > 1 and not df[c].isnull().all():
                             df[c] = normalize_series(df[c])
-                    feats   = extract_features(df, fourier_harmonics=fourier_harm)
+                    feats = extract_features(df, fourier_harmonics=fourier_harm)
                     aligned = pd.Series(feats).reindex(feature_names, fill_value=0).values
                     X_pred.append(aligned)
                     file_pred_names.append(fname)
                 except Exception as e_file:
-                    st.warning(f"Impossibile processare {fname}: {e_file}")
+                    st.warning(f"Unable to process {fname}: {e_file}")
 
             if not X_pred:
-                st.error("Nessun CSV valido trovato.")
+                st.error("No valid CSV found.")
                 st.stop()
 
             X_pred = np.vstack(X_pred)
@@ -3474,23 +3801,21 @@ def estraigrafico():
 
             pred_labels = model.predict(X_final)
 
-            # --- DataFrame di output iniziale ---
+            # Build initial output DataFrame
             df_out = pd.DataFrame({
                 "File": file_pred_names,
-                "Predetta": pred_labels
+                "Predicted": pred_labels
             })
             col1, col2 = st.columns([1, 1])
             with col1:
-                # --- L’utente seleziona i wrong ---
                 wrong = st.multiselect(
-                    "Seleziona i file con predizione SBAGLIATA",
+                    "Select files with WRONG predictions",
                     options=file_pred_names
                 )
 
-                # se ci sono sbagliati, chiedo le loro vere etichette
                 true_labels = {}
                 if wrong:
-                    st.write("**Per ciascun file sbagliato, seleziona la classe VERA:**")
+                    st.write("**For each wrongly predicted file, select the TRUE class:**")
                     for f in wrong:
                         true_labels[f] = st.selectbox(
                             f,
@@ -3498,72 +3823,56 @@ def estraigrafico():
                             key=f"true_{f}"
                         )
 
-            # --- Costruisco colonna TrueLabel ---
+            # Compute TrueLabel column
             def get_true_label(row):
-                if row.File in true_labels:
-                    return true_labels[row.File]
-                else:
-                    # non sbagliato → la predizione è corretta
-                    return row.Predetta
+                return true_labels.get(row.File, row.Predicted)
 
             df_out["TrueLabel"] = df_out.apply(get_true_label, axis=1)
 
-            # Highlight in rosso i wb sbagliati
+            # Highlight wrong rows in red
             def highlight_wrong(row):
                 return ["color: red" if row.File in wrong else "" for _ in row]
 
-            # --- Confusion matrix e report ---
+            # Confusion matrix and report
             y_true = df_out["TrueLabel"]
-            y_pred = df_out["Predetta"]
+            y_pred = df_out["Predicted"]
 
-            # Classification report
             report = classification_report(y_true, y_pred, output_dict=True)
             st.write("**Classification report:**")
             st.table(pd.DataFrame(report).T)
 
             class0, class1 = model.classes_.tolist()
 
-            # funzione che inverte la label se il file è stato segnato sbagliato
             def invert_label(row):
                 if row.File in wrong:
-                    return class1 if row.Predetta == class0 else class0
-                else:
-                    return row.Predetta
+                    return class1 if row.Predicted == class0 else class0
+                return row.Predicted
 
-            # applichiamo la funzione su tutto il DataFrame
             df_out["TrueLabel"] = df_out.apply(invert_label, axis=1)
 
-            # evidenziamo in rosso le righe sbagliate
-            def highlight_wrong(row):
-                return ["color: red" if row.File in wrong else "" for _ in row]
             with col2:
-                
-                st.write("**Predizioni con feedback e highlight:**")
+                st.write("**Predictions with feedback highlighted:**")
                 st.table(df_out.style.apply(highlight_wrong, axis=1))
 
-            # a questo punto procedi direttamente con confusion matrix e report:
-            y_true = df_out["TrueLabel"]
-            y_pred = df_out["Predetta"]
-
-
-            # confusion matrix
+            # Confusion matrix table
             cm = confusion_matrix(y_true, y_pred, labels=model.classes_)
-            cm_df = pd.DataFrame(cm,
-                                index=[f"True {c}" for c in model.classes_],
-                                columns=[f"Pred {c}" for c in model.classes_])
+            cm_df = pd.DataFrame(
+                cm,
+                index=[f"True {c}" for c in model.classes_],
+                columns=[f"Pred {c}" for c in model.classes_]
+            )
             st.write("**Confusion matrix:**")
             st.table(cm_df)
 
-            # --- Plot decision boundary e download ---
+            # Plot decision boundary and offer CSV download
             plot_decision_boundary(model, X_final, pred_labels)
 
             buf = BytesIO()
             df_out.to_csv(buf, index=False)
             buf.seek(0)
             st.download_button(
-                "Scarica CSV con feedback e TrueLabel",
+                "Download CSV with feedback and TrueLabel",
                 data=buf,
-                file_name="predizioni_con_feedback.csv",
+                file_name="predictions_with_feedback.csv",
                 mime="text/csv"
             )
-estraigrafico()
