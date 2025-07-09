@@ -256,7 +256,7 @@ def run():
             st.session_state.pending_params_file_bytes = None
             st.rerun()
 
-        with st.expander("⚙️Editing Immagine"):
+        with st.expander("⚙️Image Editing "):
             st.subheader("Data Filter", help="If you want to give the image an initial clean up.")
             st.checkbox("Enable Data Filter", key="enable_data_filter")
             st.checkbox("Invert threshold (THRESH_BINARY_INV)", key="invert_threshold")
