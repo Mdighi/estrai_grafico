@@ -57,9 +57,9 @@ from scipy.signal import medfilt
 
 from skimage.measure import find_contours
 from io import BytesIO
-st.set_page_config(layout="wide")
+
 def run():
- 
+    st.set_page_config(layout="wide", page_title="App in Italiano")  # ✅ deve essere il primo comando Streamlit
     # Ora definisci le tue tab come faresti normalmente
     # Definisci le etichette con HTML e CSS in-line
 
