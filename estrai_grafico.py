@@ -1,6 +1,5 @@
 import streamlit as st
 import cv2
-import pytesseract
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -15,12 +14,13 @@ import pickle
 import joblib
 import openpyxl
 import sympy
-
+import xlsxwriter
 from PIL import Image
 from streamlit_drawable_canvas import st_canvas
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.colors import ListedColormap
-
+import pytesseract
+pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.ensemble import (
@@ -178,8 +178,8 @@ if "colore_cluster"not in st.session_state:
     st.session_state.colore_cluster=None
 if "exclude_outlier"not in st.session_state:
     st.session_state.exclude_outlier=False
-if "var_outlier_zscore"not in st.session_state:
-    st.session_state.var_outlier_zscore=False
+if "var_outlier_zscore" not in st.session_state or st.session_state["var_outlier_zscore"] in [False, 0, None]:
+    st.session_state["var_outlier_zscore"] = 2.5
 
 def load_and_apply_sidebar_params(uploaded_bytes):
     import io
@@ -486,7 +486,12 @@ with tab1:
         # Ora tutte le operazioni successive useranno `adjusted_img`
         gray = cv2.cvtColor(adjusted_img, cv2.COLOR_BGR2GRAY)
 
-        pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+        import platform
+        if platform.system() == 'Windows':
+            pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+        else:
+            pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
+
 
         # --- INIZIO MODIFICHE PER OCR ---
         # 1. Preparazione dell'immagine per l'OCR
